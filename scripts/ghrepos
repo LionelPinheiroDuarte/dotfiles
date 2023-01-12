@@ -1,0 +1,41 @@
+#!/bin/bash
+set -e
+#Script to download all my github repositories
+#TODO
+    # Maybe remove cd
+    # download repos based on languages used:
+    
+DIR=~/home/liopin
+
+download_repos(){
+  for i in $(gh repo list | awk '{print $1}'); do
+    gh repo clone "$i"
+  done
+}
+
+install_gh(){
+	read -p "Do you want to download github cli [Yy]: " -n 1 -r
+  if [[ $REPLY =~ ^[Yy]$ ]];then
+	  apt update
+	  apt install gh	
+  fi
+}
+
+if ! [ -x "$(command -v gh)" ]; then
+  printf "Error: github CLI is not installed.\n" >&2
+  install_gh
+fi
+
+if [ -d "$DIR" ];then
+  cd $DIR
+  printf "Downloading repos"
+  download_repos
+else
+  printf "%s directory does not exist.\n" $DIR
+  printf "Creating %s...\n" $DIR
+	mkdir -p $DIR
+  printf "Moving to %s\n" $DIR
+	cd $DIR
+  printf "Downloading repos\n"
+	download_repos
+fi
