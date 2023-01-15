@@ -2,15 +2,35 @@
 set -e
 #Script to download all my github repositories
 #TODO
-    # Maybe remove cd
-    # download repos based on languages used:
-    
+   # Create a nice documentation for users 
+   
 DIR=~/home/liopin
 
-download_repos(){
+check_dir(){
+if [ -d "$DIR" ];then
+  cd $DIR
+else
+  printf "%s directory does not exist.\n" $DIR
+  printf "Creating %s...\n" $DIR
+	mkdir -p $DIR
+  cd $DIR
+fi
+}
+
+download_repos_by_language(){
+  for i in $(gh repo list --source --language "$1" | awk '{print $1}');do
+    gh repo clone "$i"
+  done
+}
+
+download_all_repos(){
   for i in $(gh repo list | awk '{print $1}'); do
     gh repo clone "$i"
   done
+}
+
+download_one_repo(){
+  gh repo clone "$1"
 }
 
 install_gh(){
@@ -24,18 +44,26 @@ install_gh(){
 if ! [ -x "$(command -v gh)" ]; then
   printf "Error: github CLI is not installed.\n" >&2
   install_gh
+  check_prequisites
 fi
 
-if [ -d "$DIR" ];then
-  cd $DIR
-  printf "Downloading repos"
-  download_repos
-else
-  printf "%s directory does not exist.\n" $DIR
-  printf "Creating %s...\n" $DIR
-	mkdir -p $DIR
-  printf "Moving to %s\n" $DIR
-	cd $DIR
-  printf "Downloading repos\n"
-	download_repos
-fi
+while getopts 's:l:a' OPTION; do
+  case "$OPTION" in
+    s)
+      check_dir
+      download_one_repo "$OPTARG"
+      ;;
+    l)
+      check_dir
+      download_repos_by_language "$OPTARG"
+      ;;
+    a)
+      check_dir
+      download_all_repos
+      ;;
+    *)
+      echo "This is a unvalide options"
+      ;;
+  esac
+done
+shift "$(($OPTIND -1))"
