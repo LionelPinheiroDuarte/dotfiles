@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =5
+let g:netrw_dirhist_5='/home/boost/liopin/resume/src/_data'
+let g:netrw_dirhist_4='/home/boost/liopin/resume/src/styles'
+let g:netrw_dirhist_3='/home/boost/liopin/resume/src/_includes'
+let g:netrw_dirhist_2='/home/boost/liopin/resume/src/_includes/partials'
+let g:netrw_dirhist_1='/home/boost/liopin/resume/src/_data'
+let g:netrw_dirhist_0='/home/boost/liopin/resume/src/fr/index.md'
+let g:netrw_dirhist_9='/home/boost/projects/Azure/eleventy-static-api/_data'
+let g:netrw_dirhist_8='/home/boost/projects/Azure/eleventy-static-api/_data/earworms.json'
+let g:netrw_dirhist_7='/home/boost/.config/lynx'
+let g:netrw_dirhist_6='/tmp/vCr9cG9'
