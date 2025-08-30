@@ -1,0 +1,169 @@
+#+TITLE: My emacs config
+#+AUTHOR: Lionel Pinheiro Duarte
+#+DATE: 2025-08-06
+#+STARTUP: overview
+#+PROPERTY: header-args:emacs-lisp :tangle "~/.emacs.d/config.el" :comments yes :lexical yes
+
+* Basic configuration
+
+** Package configuration
+
+#+BEGIN_SRC emacs-lisp
+;; Configuration des dépôts de packages
+(require 'package)
+(setq package-archives
+      '(("gnu" . "https://elpa.gnu.org/packages/")
+        ("melpa" . "https://melpa.org/packages/")
+        ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+
+(package-initialize)
+
+;; use-package for clean configuration
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+#+END_SRC
+
+** Basic config
+
+#+BEGIN_SRC emacs-lisp
+  ;; No annoying song
+  (setq ring-bell-function 'ignore)
+
+  ;; Encodage UTF-8
+  (prefer-coding-system 'utf-8)
+  (set-default-coding-systems )
+
+  ;; Redirecting backups files
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+#+END_SRC
+
+* Interface
+
+** Cleaning interface
+
+#+begin_src emacs-lisp
+  ;; Useless bar components
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+
+  ;; Line numbers
+  (global-display-line-numbers-mode 1)
+  (setq display-line-numbers-type
+#+end_src
+
+#+begin_src emacs-lisp
+  'relative)
+  ;; Column
+  (column-number-mode 1)
+
+  ;; Matching parantheses
+  (show-paren-mode 1)
+#+end_src
+
+** Themes
+
+#+BEGIN_SRC emacs-lisp
+;; Installation d'ef-themes
+(use-package ef-themes
+  :config
+  (setq ef-themes-to-toggle '(ef-cyprus ef-dream))
+  (ef-themes-select 'ef-cyprus)
+  (global-set-key (kbd "<f5>") #'ef-themes-toggle))
+#+END_SRC
+
+* Org-mode
+
+** Configuration de base
+
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :config
+  ;; Indentation
+  (setq org-startup-indented t)
+  
+  ;; Templates for code blocks
+  (require 'org-tempo)
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp :results output"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell :results output"))
+  
+  ;; Raccourcis globaux
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key (kbd "C-c c") 'org-capture))
+#+END_SRC
+
+** Babel (blocs de code exécutables)
+
+#+BEGIN_SRC emacs-lisp
+;; Configuration de Babel
+(with-eval-after-load 'org
+  ;; Langages supportés
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)
+     (shell . t)))
+  
+  ;; No evaluation message for code blocks
+  (setq org-confirm-babel-evaluate nil)
+  
+  ;; Colorization for code blocs
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t))
+#+END_SRC
+
+* Packages utiles
+
+** Completion moderne
+
+#+BEGIN_SRC emacs-lisp
+;; Vertico pour une meilleure completion
+(use-package vertico
+  :config
+  (vertico-mode 1))
+
+;; Marginalia pour des descriptions
+(use-package marginalia
+  :config
+  (marginalia-mode 1))
+#+END_SRC
+
+** Navigation et édition
+
+#+BEGIN_SRC emacs-lisp
+;; Which-key pour l'aide sur les raccourcis
+(use-package which-key
+  :config
+  (which-key-mode 1)
+  (setq which-key-idle-delay 0.3))
+#+END_SRC
+
+* Magit
+
+** Basic Magic config
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status)
+         ("C-x M-g" . magit-dispatch)
+         ("C-c g" . magit-file-dispatch))
+  :config
+  (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  (setq magit-refresh-status-buffer t))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package git-gutter
+  :ensure t
+  :config
+  (global-git-gutter-mode 1)
+  (global-set-key (kbd "C-c n") 'git-gutter-next-hunk)
+  (global-set-key (kbd "C-c p") 'git-gutter-previous-hunk)
+  (global-set-key (kbd "C-c v") 'git-gutter-popup-hunk)
+  (global-set-key (kbd "C-c r") 'git-gutter-revert-hunk))
+#+END_SRC
