@@ -14,6 +14,4 @@ Big thanks to [rwxrob](https://gitub.com/rwxrob/dot) for the bash, vim, and tmux
 - **Vim**: Lightweight configuration focused on efficiency  
 - **Tmux**: Terminal multiplexer setup for better workflow
 
-.
-
  
