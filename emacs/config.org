@@ -4,44 +4,47 @@
 #+STARTUP: overview
 #+PROPERTY: header-args:emacs-lisp :tangle "~/.emacs.d/config.el" :comments yes :lexical yes
 
+
 * Basic configuration
 
 ** Package configuration
 
 #+BEGIN_SRC emacs-lisp
-;; Configuration des dépôts de packages
-(require 'package)
-(setq package-archives
-      '(("gnu" . "https://elpa.gnu.org/packages/")
-        ("melpa" . "https://melpa.org/packages/")
-        ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+  ;; Configuration des dépôts de packages
+  (require 'package)
+  (setq package-archives
+        '(("gnu" . "https://elpa.gnu.org/packages/")
+          ("melpa" . "https://melpa.org/packages/")
+          ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+  	(straight-use-package 'el-patch)))
 
-(package-initialize)
+  (package-initialize)
 
-;; use-package for clean configuration
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+  ;; use-package for clean configuration
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
 
-(require 'use-package)
-(setq use-package-always-ensure t)
+  (require 'use-package)
+  (setq use-package-always-ensure t)
 #+END_SRC
 
 ** Basic config
 
 #+BEGIN_SRC emacs-lisp
-  ;; No annoying song
-  (setq ring-bell-function 'ignore)
+    ;; No annoying song
+    (setq ring-bell-function 'ignore)
 
-  ;; Encodage UTF-8
-  (prefer-coding-system 'utf-8)
-  (set-default-coding-systems )
+    ;; Encodage UTF-8
+    (prefer-coding-system 'utf-8)
+    (setq locale-coding-system 'utf-8)
+    (setq default-buffer-file-coding-system 'utf-8-unix)
+    (set-default-coding-systems 'utf-8)
 
-  ;; Redirecting backups files
-  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+    ;; Redirecting backups files
+    (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+
 #+END_SRC
-
-* Interface
 
 ** Cleaning interface
 
@@ -68,14 +71,39 @@
 ** Themes
 
 #+BEGIN_SRC emacs-lisp
-;; Installation d'ef-themes
-(use-package ef-themes
-  :config
-  (setq ef-themes-to-toggle '(ef-cyprus ef-dream))
-  (ef-themes-select 'ef-cyprus)
-  (global-set-key (kbd "<f5>") #'ef-themes-toggle))
+  ;; Installation d'ef-themes
+  (use-package ef-themes
+    :config
+    (setq ef-themes-to-toggle '(ef-cyprus ef-dream))
+    (ef-themes-select 'ef-cyprus)
+    (global-set-key (kbd "<f5>") #'ef-themes-toggle))
+
 #+END_SRC
 
+** Terminal
+#+BEGIN_SRC emacs-lisp
+;; Configuration du shell mode pour bash
+(setq shell-file-name "/bin/bash")
+(setq explicit-shell-file-name "/bin/bash")
+(setq explicit-bash-args '("--login" "-i"))
+
+;; Variables d'environnement pour le shell
+(setenv "SHELL" "/bin/bash")
+(setenv "ESHELL" "/bin/bash")
+
+;; Support des couleurs ANSI dans shell
+(add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+(add-to-list 'comint-output-filter-functions 'ansi-color-process-output)
+
+;; Configuration du terminal dans Emacs
+(setq comint-scroll-to-bottom-on-input t)
+(setq comint-scroll-to-bottom-on-output t)
+(setq comint-move-point-for-output t)
+
+;; Raccourci pour ouvrir un shell
+(global-set-key (kbd "C-c s") 'shell)
+
+#+END_SRC
 * Org-mode
 
 ** Configuration de base
@@ -85,19 +113,95 @@
   :config
   ;; Indentation
   (setq org-startup-indented t)
-  
+
   ;; Templates for code blocks
   (require 'org-tempo)
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp :results output"))
   (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
   (add-to-list 'org-structure-template-alist '("sh" . "src shell :results output"))
-  
+
   ;; Raccourcis globaux
   (global-set-key (kbd "C-c a") 'org-agenda)
   (global-set-key (kbd "C-c c") 'org-capture))
 #+END_SRC
+** Calendar Journal
+#+BEGIN_SRC emacs-lisp
+    (use-package org-journal
+    :ensure t
+    :custom
+    (org-journal-dir "~/documents/notes/")
+    (setq org-journal-date-format "%Y-%m-%d.org")
+    (setq org-journal-file-format "%Y-%m-%d.org"))
 
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+     ;; Folder to puts my note
+     (defvar my/notes-directory "~/documents/notes/")  ; Ajout du / final
+
+     ;; Create new folde
+    (unless (file-directory-p my/notes-directory)
+       (make-directory my/notes-directory t))
+     ;; Template
+     (defun my/daily-template ()
+       "Template simple avec la date du jour."
+       (format "#+TITLE: Notes du %s
+       ,#+DATE: %s
+
+        ,* Todo
+       - [ ]
+       - [ ]
+       - [ ]
+
+        ,* Notes
+       -
+
+        ,* Ideas
+       -
+       "
+               (format-time-string "%A %d %B %Y")))  ;; Date
+
+     ;; Main function
+     (defun my/create-daily-note ()
+       "Crée une nouvelle note avec le template du jour."
+       (interactive)
+       (let* ((today (format-time-string "%Y-%m-%d"))
+              (filename (expand-file-name (concat today ".org") my/notes-directory)))
+
+         ;; Si le fichier existe déjà, juste l'ouvrir
+         (if (file-exists-p filename)
+             (progn
+               (find-file filename)
+               (message "Note du jour ouverte : %s" today))
+           ;; Sinon créer nouveau fichier avec template
+           (progn
+             (find-file filename)
+             (insert (my/daily-template))
+             (goto-char (point-min))
+             (search-forward "- [ ]" nil t)  ; Positionner sur première tâche
+             (save-buffer)
+             (message "Nouvelle note créée : %s" today)))))
+
+     ;; Raccourci
+     (global-set-key (kbd "C-c j") 'my/create-daily-note)
+
+     ;; Confirguration message
+     (message "✓ Dayli notes configures. Use C-d n to create a new note")
+#+END_SRC
+
+** RSS feed
+#+BEGIN_SRC emacs-lisp
+(require 'newsticker)
+
+(setq newsticker-url-list
+      '(("Kubernetes blog" "kubernetes.io/feed.xml")
+        ("CNCF blog" "cncf.io/feed")))
+
+(setq newsticker-retrieval-interval 30) ;; toutes les 30 minutes
+
+#+END_SRC
 ** Babel (blocs de code exécutables)
+
 
 #+BEGIN_SRC emacs-lisp
 ;; Configuration de Babel
@@ -108,10 +212,10 @@
    '((emacs-lisp . t)
      (python . t)
      (shell . t)))
-  
+
   ;; No evaluation message for code blocks
   (setq org-confirm-babel-evaluate nil)
-  
+
   ;; Colorization for code blocs
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t))
