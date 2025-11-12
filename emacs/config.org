@@ -1,3 +1,4 @@
+
 #+TITLE: My emacs config
 #+AUTHOR: Lionel Pinheiro Duarte
 #+DATE: 2025-08-06
@@ -71,12 +72,15 @@
 ** Themes
 
 #+BEGIN_SRC emacs-lisp
-  ;; Installation d'ef-themes
-  (use-package ef-themes
+  ;; Gruvbox Theme
+(use-package gruvbox-theme
+    :ensure t
     :config
-    (setq ef-themes-to-toggle '(ef-cyprus ef-dream))
-    (ef-themes-select 'ef-cyprus)
-    (global-set-key (kbd "<f5>") #'ef-themes-toggle))
+    (load-theme 'gruvbox t))
+
+(setq custom-safe-themes t)
+(setq term-set-terminal-background-color nil)
+
 
 #+END_SRC
 
@@ -136,68 +140,68 @@
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-     ;; Folder to puts my note
-     (defvar my/notes-directory "~/documents/notes/")  ; Ajout du / final
+   ;; Folder to puts my notes
+  (defvar my/notes-directory "~/documents/notes/")  ; Ajout du / final
 
-     ;; Create new folde
-    (unless (file-directory-p my/notes-directory)
-       (make-directory my/notes-directory t))
-     ;; Template
-     (defun my/daily-template ()
-       "Template simple avec la date du jour."
-       (format "#+TITLE: Notes du %s
-       ,#+DATE: %s
+   ;; Create new folde
+  (unless (file-directory-p my/notes-directory)
+     (make-directory my/notes-directory t))
+   ;; Template
+   (defun my/daily-template ()
+     "Template simple avec la date du jour."
+     (format "#+TITLE: Notes du %s
+     ,#+DATE: %s
 
-        ,* Todo
-       - [ ]
-       - [ ]
-       - [ ]
+      ,* Todo
+     - [ ]
+     - [ ]
+     - [ ]
 
-        ,* Notes
-       -
+      ,* Notes
+     -
 
-        ,* Ideas
-       -
-       "
-               (format-time-string "%A %d %B %Y")))  ;; Date
+      ,* Ideas
+     -
+     "
+             (format-time-string "%A %d %B %Y")))  ;; Date
 
-     ;; Main function
-     (defun my/create-daily-note ()
-       "Crée une nouvelle note avec le template du jour."
-       (interactive)
-       (let* ((today (format-time-string "%Y-%m-%d"))
-              (filename (expand-file-name (concat today ".org") my/notes-directory)))
+   ;; Main function
+   (defun my/create-daily-note ()
+     "Crée une nouvelle note avec le template du jour."
+     (interactive)
+     (let* ((today (format-time-string "%Y-%m-%d"))
+            (filename (expand-file-name (concat today ".org") my/notes-directory)))
 
-         ;; Si le fichier existe déjà, juste l'ouvrir
-         (if (file-exists-p filename)
-             (progn
-               (find-file filename)
-               (message "Note du jour ouverte : %s" today))
-           ;; Sinon créer nouveau fichier avec template
+       ;; Si le fichier existe déjà, juste l'ouvrir
+       (if (file-exists-p filename)
            (progn
              (find-file filename)
-             (insert (my/daily-template))
-             (goto-char (point-min))
-             (search-forward "- [ ]" nil t)  ; Positionner sur première tâche
-             (save-buffer)
-             (message "Nouvelle note créée : %s" today)))))
+             (message "Note du jour ouverte : %s" today))
+         ;; Sinon créer nouveau fichier avec template
+         (progn
+           (find-file filename)
+           (insert (my/daily-template))
+           (goto-char (point-min))
+           (search-forward "- [ ]" nil t)  ; Positionner sur première tâche
+           (save-buffer)
+           (message "Nouvelle note créée : %s" today)))))
 
-     ;; Raccourci
-     (global-set-key (kbd "C-c j") 'my/create-daily-note)
+   ;; Raccourci
+   (global-set-key (kbd "C-c j") 'my/create-daily-note)
 
-     ;; Confirguration message
-     (message "✓ Dayli notes configures. Use C-d n to create a new note")
+   ;; Confirguration message
+   (message "✓ Dayli notes configures. Use C-d n to create a new note")
 #+END_SRC
 
 ** RSS feed
 #+BEGIN_SRC emacs-lisp
-(require 'newsticker)
+  (require 'newsticker)
 
-(setq newsticker-url-list
-      '(("Kubernetes blog" "kubernetes.io/feed.xml")
-        ("CNCF blog" "cncf.io/feed")))
+  (setq newsticker-url-list
+        '(("Kubernetes blog" "kubernetes.io/feed.xml")
+          ("CNCF blog" "cncf.io/blog/feed/")))
 
-(setq newsticker-retrieval-interval 30) ;; toutes les 30 minutes
+  (setq newsticker-retrieval-interval 30);; every 30 minutes
 
 #+END_SRC
 ** Babel (blocs de code exécutables)
