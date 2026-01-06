@@ -1,0 +1,15 @@
+#!/bin/bash
+
+SESSION="home"
+
+tmux new-session -d -s $SESSION -n emacs
+tmux send-keys -t $SESSION:emacs "emacs" C-m
+
+#sleep 10
+
+tmux new-window -t $SESSION -n shell
+
+tmux new-window -t $SESSION -n server
+
+tmux select-window -t $SESSION:1
+tmux attach-session -t $SESSION
