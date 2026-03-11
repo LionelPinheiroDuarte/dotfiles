@@ -6,7 +6,7 @@ Personal configuration files for my development environment. These dotfiles help
 - **Git**: Personal git configuration and aliases
 - **Emacs: Personal emacs configuration
 
-🙏 Credits
+## 🙏 Credits
 Big thanks to [rwxrob](https://gitub.com/rwxrob/dot) for the bash, vim, and tmux configurations that form the foundation of this setup. His dotfiles are an excellent resource for starting terminal-based development.
 
 - **Bash**: Custom `.bashrc` with aliases and environment setup
