@@ -40,6 +40,8 @@ export VIDEOS="$HOME/Videos"
 export PDFS="$HOME/usb/pdfs"
 export VIRTUALMACHINES="$HOME/VirtualMachines"
 export WORKSPACES="$HOME/Workspaces" # container home dirs for mounting
+export GITHUB="$HOME/repos/github"
+export JOURNAL="$HOME/documents/journal"
 export ZETDIR="$GHREPOS/zet"
 export ZETTELCASTS="$VIDEOS/ZettelCasts"
 export CLIP_DIR="$VIDEOS/Clips"
@@ -222,6 +224,17 @@ alias '???'=bing
 alias dot='cd $DOTFILES'
 alias scripts='cd $SCRIPTS'
 alias snippets='cd $SNIPPETS'
+# --- navigation: repos ---
+alias github='cd $GITHUB'
+alias agents='cd $GITHUB/agents'
+alias brain='cd $GITHUB/brain'
+alias dotfiles='cd $GITHUB/dotfiles'
+alias job='cd $GITHUB/job-listing'
+alias portfolio='cd $GITHUB/portfolio'
+alias toolbox='cd $GITHUB/toolbox'
+alias ghmanager='cd $GITHUB/gh-manager'
+# --- navigation: documents ---
+alias journal='cd $JOURNAL'
 alias ls='ls -h --color=auto'
 alias free='free -h'
 alias df='df -h'
