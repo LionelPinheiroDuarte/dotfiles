@@ -11,7 +11,7 @@ FROM ${BASE_IMAGE}
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
-    ansible \
+    ansible-core \
     git \
     sudo \
     curl \

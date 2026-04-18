@@ -20,7 +20,7 @@ command -v apt-get &>/dev/null || error "This script requires a Debian-based sys
 
 info "Installing Ansible and Git..."
 sudo apt-get update -qq
-sudo apt-get install -y ansible git
+sudo apt-get install -y ansible-core git
 
 info "Cloning dotfiles..."
 if [[ -d "$DOTFILES_DIR" ]]; then
