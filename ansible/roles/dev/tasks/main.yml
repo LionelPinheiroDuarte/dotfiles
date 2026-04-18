@@ -1,0 +1,72 @@
+---
+# Python
+- name: Install Python packages
+  ansible.builtin.apt:
+    name: "{{ apt_dev_packages }}"
+    state: present
+
+# Go — official binary tarball
+- name: Check if Go is installed
+  ansible.builtin.stat:
+    path: /usr/local/go/bin/go
+  register: go_binary
+
+- name: Download Go tarball
+  ansible.builtin.get_url:
+    url: "https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz"
+    dest: /tmp/go.tar.gz
+    mode: "0644"
+  when: not go_binary.stat.exists
+
+- name: Extract Go to /usr/local
+  ansible.builtin.unarchive:
+    src: /tmp/go.tar.gz
+    dest: /usr/local
+    remote_src: true
+  when: not go_binary.stat.exists
+
+- name: Add Go to PATH via profile.d
+  ansible.builtin.copy:
+    dest: /etc/profile.d/go.sh
+    content: "export PATH=$PATH:/usr/local/go/bin\n"
+    mode: "0644"
+
+# Node.js — NodeSource official apt repo
+- name: Download and dearmor NodeSource GPG key
+  ansible.builtin.shell: |
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
+      | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+  args:
+    creates: /etc/apt/keyrings/nodesource.gpg
+
+- name: Add NodeSource apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_{{ node_major_version }}.x nodistro main"
+    state: present
+    filename: nodesource
+
+- name: Install Node.js
+  ansible.builtin.apt:
+    name: nodejs
+    state: present
+    update_cache: true
+
+# GitHub CLI — official apt repo
+- name: Download GitHub CLI GPG key
+  ansible.builtin.shell: |
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+      -o /etc/apt/keyrings/githubcli-archive-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/githubcli-archive-keyring.gpg
+
+- name: Add GitHub CLI apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
+    state: present
+    filename: github-cli
+
+- name: Install GitHub CLI
+  ansible.builtin.apt:
+    name: gh
+    state: present
+    update_cache: true

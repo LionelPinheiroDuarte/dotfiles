@@ -1,0 +1,22 @@
+---
+# System-level setup — requires sudo
+- name: System packages and tools
+  hosts: local
+  become: true
+  vars_files:
+    - vars/packages.yml
+  vars:
+    real_user: "{{ ansible_env.SUDO_USER | default(ansible_env.USER) }}"
+  roles:
+    - { role: base,   tags: base }
+    - { role: dev,    tags: dev }
+    - { role: devops, tags: devops }
+
+# User-level setup — dotfiles and symlinks
+- name: User dotfiles
+  hosts: local
+  become: false
+  vars_files:
+    - vars/packages.yml
+  roles:
+    - { role: dotfiles, tags: dotfiles }

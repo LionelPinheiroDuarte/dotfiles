@@ -1,0 +1,25 @@
+---
+- name: Create repos directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/repos/github"
+    state: directory
+    mode: "0755"
+
+- name: Clone dotfiles repository
+  ansible.builtin.git:
+    repo: https://github.com/LionelPinheiroDuarte/dotfiles.git
+    dest: "{{ ansible_env.HOME }}/repos/github/dotfiles"
+    update: false
+
+- name: Symlink dotfiles to $HOME
+  ansible.builtin.file:
+    src: "{{ ansible_env.HOME }}/repos/github/dotfiles/{{ item.src }}"
+    dest: "{{ ansible_env.HOME }}/{{ item.dest }}"
+    state: link
+    force: true
+  loop:
+    - { src: "bash/.bashrc",  dest: ".bashrc" }
+    - { src: "vim/.vimrc",    dest: ".vimrc" }
+    - { src: "vim/.vim",      dest: ".vim" }
+    - { src: "tmux/.tmux.conf", dest: ".tmux.conf" }
+    - { src: ".gitconfig",    dest: ".gitconfig" }

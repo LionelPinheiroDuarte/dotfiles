@@ -1,0 +1,25 @@
+---
+apt_base_packages:
+  - vim
+  - git
+  - tmux
+  - curl
+  - wget
+  - jq
+  - make
+  - bat
+  - pandoc
+  - ca-certificates
+  - gnupg
+  - apt-transport-https
+  - lsb-release
+  - unzip
+
+apt_dev_packages:
+  - python3
+  - python3-pip
+  - python3-venv
+
+go_version: "1.23.4"
+node_major_version: "22"
+kubectl_version: "v1.31"
