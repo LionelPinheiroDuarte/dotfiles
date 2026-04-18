@@ -5,17 +5,17 @@
     state: directory
     mode: "0755"
 
-- name: Check if dotfiles already present
+- name: Check if dotfiles directory exists
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/repos/github/dotfiles/.git"
-  register: dotfiles_git
+    path: "{{ ansible_env.HOME }}/repos/github/dotfiles"
+  register: dotfiles_dir
 
 - name: Clone dotfiles repository
   ansible.builtin.git:
     repo: https://github.com/LionelPinheiroDuarte/dotfiles.git
     dest: "{{ ansible_env.HOME }}/repos/github/dotfiles"
     update: false
-  when: not dotfiles_git.stat.exists
+  when: not dotfiles_dir.stat.exists
 
 - name: Symlink dotfiles to $HOME
   ansible.builtin.file:
