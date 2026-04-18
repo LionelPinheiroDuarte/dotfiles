@@ -1,17 +1,33 @@
-# 🏠 My Dotfiles
+# My Dotfiles
 
-Personal configuration files for my development environment. These dotfiles help me maintain a consistent, productive setup across different machines.
+Personal configuration files and automated bootstrap for my development environment.
 
-## 🚀 What's inside
-- **Git**: Personal git configuration and aliases
-- **Emacs: Personal emacs configuration
+## Bootstrap (fresh Debian/Ubuntu install)
 
-## 🙏 Credits
-Big thanks to [rwxrob](https://gitub.com/rwxrob/dot) for the bash, vim, and tmux configurations that form the foundation of this setup. His dotfiles are an excellent resource for starting terminal-based development.
+```bash
+curl -fsSL https://raw.githubusercontent.com/LionelPinheiroDuarte/dotfiles/main/ansible/bootstrap.sh | bash
+```
 
-- **Bash**: Custom `.bashrc` with aliases and environment setup
-- **Setup script**: Script to quickly setup things
-- **Vim**: Lightweight configuration focused on efficiency  
-- **Tmux**: Terminal multiplexer setup for better workflow
+Installs Ansible, clones this repo, and runs the playbook — one command to a full setup.
 
- 
+## Test with Docker
+
+```bash
+git clone https://github.com/LionelPinheiroDuarte/dotfiles.git
+cd dotfiles
+docker build -t dotfiles-test -f ansible/Dockerfile .
+docker run --rm dotfiles-test
+```
+
+## What's inside
+
+- **Bash** — aliases, environment, completions
+- **Vim** — lightweight config with vim-plug
+- **Tmux** — Ctrl+A prefix, vi-mode, custom status bar
+- **Git** — global config and aliases
+- **Emacs** — literate config via `config.org`
+- **Ansible** — idempotent playbook covering base tools, dev stack (Go, Node, Python, gh) and DevOps tools (Docker, kubectl, Terraform, AWS CLI)
+
+## Credits
+
+Thanks to [rwxrob](https://github.com/rwxrob/dot) for the bash, vim, and tmux foundations.
