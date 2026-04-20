@@ -51,6 +51,39 @@
     state: present
     update_cache: true
 
+# VHS — Charm official apt repo
+- name: Download Charm GPG key
+  ansible.builtin.shell: |
+    curl -fsSL https://repo.charm.sh/apt/gpg.key \
+      | gpg --dearmor -o /etc/apt/keyrings/charm.gpg
+  args:
+    creates: /etc/apt/keyrings/charm.gpg
+
+- name: Add Charm apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *"
+    state: present
+    filename: charm
+
+- name: Install VHS
+  ansible.builtin.apt:
+    name: vhs
+    state: present
+    update_cache: true
+
+# pip — global Python tools
+- name: Install pip packages
+  ansible.builtin.pip:
+    name: "{{ pip_packages }}"
+    extra_args: --user --break-system-packages
+
+# npm global packages
+- name: Install global npm packages
+  ansible.builtin.command:
+    cmd: npm install -g {{ item }}
+  loop: "{{ npm_global_packages }}"
+  changed_when: true
+
 # GitHub CLI — official apt repo
 - name: Download GitHub CLI GPG key
   ansible.builtin.shell: |
