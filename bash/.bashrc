@@ -1,92 +1,96 @@
 #!bash
 # shellcheck disable=SC1090
 
+# === INTERACTIVE SHELL GUARD ===
+# Bail out early if the shell is not interactive (e.g. scripts, scp sessions).
+
 case $- in
-*i*) ;; # interactive
+*i*) ;;
 *) return ;;
 esac
 
-# ------------------------- distro detection -------------------------
+# === DISTRO / ENVIRONMENT DETECTION ===
+# Detect the running platform to allow conditional behaviour later.
+# Currently only distinguishes WSL2 — extend with more cases as needed.
 
 export DISTRO
 [[ $(uname -r) =~ Microsoft ]] && DISTRO=WSL2 #TODO distinguish WSL1
-#TODO add the rest
+#TODO add native Linux, macOS, etc.
 
-# ---------------------- local utility functions ---------------------
+# === CORE UTILITY FUNCTIONS ===
+# Lightweight helpers used internally throughout this file.
+# _have: true if a command exists on PATH.
+# _source_if: source a file only if it exists and is readable.
 
 _have() { type "$1" &>/dev/null; }
 _source_if() { [[ -r "$1" ]] && source "$1"; }
 
-# ----------------------- environment variables ----------------------
-#                           (also see envx)
+# === ENVIRONMENT VARIABLES ===
+
+# -- Personal paths --
+# REPOS/GHREPOS follow the ~/Repos/github.com/<user>/ layout used by clone().
+# GITHUB is the actual working location for day-to-day projects.
 
 export USER="${USER:-$(whoami)}"
 export GITUSER="$USER"
 export REPOS="$HOME/Repos"
 export GHREPOS="$REPOS/github.com/$GITUSER"
-export DOTFILES="$GHREPOS/dot"
-export SCRIPTS="$DOTFILES/scripts"
-export SNIPPETS="$DOTFILES/snippets"
-#export HELP_BROWSER=lynx
-export DESKTOP="$HOME/Desktop"
-export DOCUMENTS="$HOME/Documents"
-export DOWNLOADS="$HOME/Downloads"
-export TEMPLATES="$HOME/Templates"
-export PUBLIC="$HOME/Public"
-export PRIVATE="$HOME/Private"
-export PICTURES="$HOME/Pictures"
-export MUSIC="$HOME/Music"
-export VIDEOS="$HOME/Videos"
-export PDFS="$HOME/usb/pdfs"
-export VIRTUALMACHINES="$HOME/VirtualMachines"
-export WORKSPACES="$HOME/Workspaces" # container home dirs for mounting
 export GITHUB="$HOME/repos/github"
 export JOURNAL="$HOME/documents/journal"
-export ZETDIR="$GHREPOS/zet"
-export ZETTELCASTS="$VIDEOS/ZettelCasts"
-export CLIP_DIR="$VIDEOS/Clips"
-export CLIP_DATA="$GHREPOS/cmd-clip/data"
-export CLIP_VOLUME=0
-export CLIP_SCREEN=0
+
+# -- Editor & terminal --
+# vi/vim as default editor; xterm-256color for full colour support.
+
 export TERM=xterm-256color
-export HRULEWIDTH=73
 export EDITOR=vi
 export VISUAL=vi
-export EDITOR_PREFIX=vi
+
+# -- Go toolchain --
+# Keep private modules off the public proxy; output binaries to ~/.local/bin.
+
 export GOPRIVATE="github.com/$GITUSER/*,gitlab.com/$GITUSER/*"
 export GOPATH="$HOME/.local/share/go"
 export GOBIN="$HOME/.local/bin"
 export GOPROXY=direct
 export CGO_ENABLED=0
-export PYTHONDONTWRITEBYTECODE=2 # fucking shit-for-brains var name
+
+# -- Python --
+# Prevent Python from littering the filesystem with .pyc bytecode files.
+
+export PYTHONDONTWRITEBYTECODE=2
+
+# -- LESS / man page colours --
+# TERMCAP overrides to colourize man page headings and highlights in less.
+
+export LESS_TERMCAP_mb="[35m" # magenta  — blinking
+export LESS_TERMCAP_md="[33m" # yellow   — bold
+export LESS_TERMCAP_me=""      # reset bold
+export LESS_TERMCAP_se=""      # reset standout
+export LESS_TERMCAP_so="[34m" # blue     — standout (status bar)
+export LESS_TERMCAP_ue=""      # reset underline
+export LESS_TERMCAP_us="[4m"  # underline
+
+# -- Miscellaneous tool config --
+
 export LC_COLLATE=C
-export CFLAGS="-Wall -Wextra -Werror -O0 -g -fsanitize=address -fno-omit-frame-pointer -finstrument-functions"
-
-export LESS_TERMCAP_mb="[35m" # magenta
-export LESS_TERMCAP_md="[33m" # yellow
-export LESS_TERMCAP_me=""      # "0m"
-export LESS_TERMCAP_se=""      # "0m"
-export LESS_TERMCAP_so="[34m" # blue
-export LESS_TERMCAP_ue=""      # "0m"
-export LESS_TERMCAP_us="[4m"  # underline
-
 export ANSIBLE_INVENTORY="$HOME/.config/ansible/ansible_hosts"
 #export DOCKER_HOST=unix:///run/user/$(id -u)/docker.sock
+#export GPG_TTY=$(tty)
 
 [[ -d /.vim/spell ]] && export VIMSPELL=("$HOME/.vim/spell/*.add")
 
-# -------------------------------- gpg -------------------------------
-
-#export GPG_TTY=$(tty)
-
-# ------------------------------- pager ------------------------------
+# === PAGER ===
+# Enable lesspipe so less can display binary files (archives, images, etc.)
+# by piping them through the appropriate converter first.
 
 if [[ -x /usr/bin/lesspipe ]]; then
 	export LESSOPEN="| /usr/bin/lesspipe %s"
 	export LESSCLOSE="/usr/bin/lesspipe %s %s"
 fi
 
-# ----------------------------- dircolors ----------------------------
+# === LS COLOURS ===
+# Load a terminal colour scheme for ls output. Reads ~/.dircolors if present,
+# otherwise falls back to the system defaults.
 
 if _have dircolors; then
 	if [[ -r "$HOME/.dircolors" ]]; then
@@ -96,7 +100,9 @@ if _have dircolors; then
 	fi
 fi
 
-# ------------------------------- path -------------------------------
+# === PATH ===
+# pathprepend / pathappend add directories to PATH without creating duplicates.
+# Entries that don't exist as directories are silently skipped.
 
 pathappend() {
 	declare arg
@@ -119,13 +125,14 @@ pathprepend() {
 	done
 } && export pathprepend
 
-# remember last arg will be first in path
+# Prepended entries appear first (higher priority). Last listed = highest priority.
 pathprepend \
 	/usr/local/bin \
 	"$HOME/.local/bin" \
-	"$GHREPOS/cmd-"* \
-	"$SCRIPTS"
+	"$HOME/.npm-global/bin" \
+	"$GHREPOS/cmd-"*
 
+# Appended entries are lower priority fallbacks, including Windows-side paths for WSL2.
 pathappend \
 	/usr/local/opt/coreutils/libexec/gnubin \
 	'/mnt/c/Program Files/Oracle/VirtualBox' \
@@ -142,11 +149,19 @@ pathappend \
 	/sbin \
 	/bin
 
-# ------------------------------ cdpath ------------------------------
+# === CDPATH ===
+# Directories searched by cd — lets you jump to a subdirectory from anywhere
+# without typing the full path (e.g. `cd job-listing` from any location).
 
-export CDPATH=".:$GHREPOS:$DOTFILES:$REPOS:/media/$USER:$HOME"
+export CDPATH=".:$GHREPOS:$REPOS:/media/$USER:$HOME"
 
-# ------------------------ bash shell options ------------------------
+# === SHELL OPTIONS ===
+# Tune Bash behaviour:
+#   checkwinsize — update LINES/COLUMNS after each command
+#   expand_aliases — aliases work in non-interactive contexts
+#   globstar — ** matches across directory boundaries
+#   dotglob — globs include hidden files (dot files)
+#   extglob — enables extended pattern matching (!(x), +(x), etc.)
 
 shopt -s checkwinsize
 shopt -s expand_aliases
@@ -157,11 +172,19 @@ shopt -s extglob
 #shopt -s nullglob # bug kills completion for some
 #set -o noclobber
 
-# -------------------------- stty annoyances -------------------------
+# === TERMINAL ===
+# Disable Ctrl-S (XOFF flow control) to prevent accidental terminal freezes.
+# Remap Caps Lock to Escape when running in a graphical session.
 
-stty stop undef # disable control-s accidental terminal stops
+stty stop undef
 
-# ------------------------------ history -----------------------------
+_have setxkbmap && test -n "$DISPLAY" &&
+	setxkbmap -option caps:escape &>/dev/null
+
+# === HISTORY ===
+# ignoreboth: skip duplicates and lines starting with a space.
+# Large history size; append to the file rather than overwrite it.
+# vi mode for command-line editing.
 
 export HISTCONTROL=ignoreboth
 export HISTSIZE=5000
@@ -170,8 +193,11 @@ export HISTFILESIZE=10000
 set -o vi
 shopt -s histappend
 
-# --------------------------- smart prompt ---------------------------
-#                 (keeping in bashrc for portability)
+# === PROMPT ===
+# Adaptive PS1 showing user, host, current directory, and git branch.
+# Automatically switches to a two-line or three-line layout when the
+# one-liner would exceed PROMPT_LONG or PROMPT_MAX characters.
+# Branch name turns red on main/master as a subtle reminder.
 
 PROMPT_LONG=20
 PROMPT_MAX=95
@@ -179,9 +205,14 @@ PROMPT_AT=@
 
 __ps1() {
 	local P='$' dir="${PWD##*/}" B countme short long double \
-		r='\[\e[31m\]' g='\[\e[30m\]' h='\[\e[34m\]' \
-		u='\[\e[33m\]' p='\[\e[34m\]' w='\[\e[35m\]' \
-		b='\[\e[36m\]' x='\[\e[0m\]'
+		r='\[\e[38;5;167m\]' \
+		g='\[\e[38;5;245m\]' \
+		h='\[\e[38;5;109m\]' \
+		u='\[\e[38;5;208m\]' \
+		p='\[\e[38;5;208m\]' \
+		w='\[\e[38;5;214m\]' \
+		b='\[\e[38;5;108m\]' \
+		x='\[\e[0m\]'
 
 	[[ $EUID == 0 ]] && P='#' && u=$r && p=$u # root
 	[[ $PWD = / ]] && dir=/
@@ -207,24 +238,33 @@ __ps1() {
 	fi
 }
 
-PROMPT_COMMAND="__ps1"
+# log_output: capture stderr of failed commands for `x wtf`.
+# Writes the last command to /tmp/last_command.txt and re-runs it
+# (stderr only) to /tmp/last_error.txt. Skips python/x invocations
+# to avoid infinite loops or side effects.
+log_output() {
+	local exit_code=$?
+	local last_cmd
+	last_cmd=$(history 1 | awk '{$1=""; print $0}' | xargs)
+	if [[ $exit_code -ne 0 ]]; then
+		echo "$last_cmd" >/tmp/last_command.txt
+		case "$last_cmd" in
+			python3* | python* | x\ * | x) ;;
+			*) eval "$last_cmd" 2>/tmp/last_error.txt 1>/dev/null ;;
+		esac
+	fi
+}
 
-# ----------------------------- keyboard -----------------------------
+PROMPT_COMMAND='log_output; __ps1'
 
-_have setxkbmap && test -n "$DISPLAY" &&
-	setxkbmap -option caps:escape &>/dev/null
-
-# ------------------------------ aliases -----------------------------
-#      (use exec scripts instead, which work from vim and subprocs)
+# === ALIASES ===
+# Wipe all existing aliases first to avoid inheriting stale definitions.
 
 unalias -a
-alias '?'=duck
-alias '??'=google
-alias '???'=bing
-alias dot='cd $DOTFILES'
-alias scripts='cd $SCRIPTS'
-alias snippets='cd $SNIPPETS'
-# --- navigation: repos ---
+
+# -- Navigation: repos --
+# Quick jumps to GitHub projects.
+
 alias github='cd $GITHUB'
 alias agents='cd $GITHUB/agents'
 alias brain='cd $GITHUB/brain'
@@ -233,34 +273,38 @@ alias job='cd $GITHUB/job-listing'
 alias portfolio='cd $GITHUB/portfolio'
 alias toolbox='cd $GITHUB/toolbox'
 alias ghmanager='cd $GITHUB/gh-manager'
-# --- navigation: documents ---
+
+# -- Navigation: documents --
+
 alias journal='cd $JOURNAL'
+
+# -- System utilities --
+# Human-readable sizes, colour output, safer/ergonomic defaults.
+
 alias ls='ls -h --color=auto'
 alias free='free -h'
 alias df='df -h'
-alias chmox='chmod +x'
 alias diff='diff --color'
-alias sshh='sshpass -f $HOME/.sshpass ssh '
-alias temp='cd $(mktemp -d)'
-alias view='vi -R' # which is usually linked to vim
 alias clear='printf "\e[H\e[2J"'
 alias c='printf "\e[H\e[2J"'
-alias coin="clip '(yes|no)'"
+alias temp='cd $(mktemp -d)'
+alias chmox='chmod +x'
 alias grep="pcregrep"
 alias top=bashtop
-alias iam=live
-alias neo="neo -D -c gold"
+
+# -- Development tools --
+
+alias bat='batcat'
+alias view='vi -R'           # read-only vim
 alias sc='shellcheck'
+alias sshh='sshpass -f $HOME/.sshpass ssh '
 
 _have vim && alias vi=vim
 
-# ----------------------------- functions ----------------------------
+# === FUNCTIONS ===
 
-# lesscoloroff() {
-#   while IFS= read -r line; do
-#     unset ${line%%=*}
-#   done < <(env | grep LESS_TERM)
-# } && export -f lesscoloroff
+# -- envx: source a KEY=VALUE .env file into the current shell --
+# Falls back to ~/.env when no argument is given.
 
 envx() {
 	local envfile="${1:-"$HOME/.env"}"
@@ -275,6 +319,8 @@ envx() {
 
 [[ -e "$HOME/.env" ]] && envx "$HOME/.env"
 
+# -- new-from: create a GitHub repo from a template and clone it locally --
+
 new-from() {
 	local template="$1"
 	local name="$2"
@@ -287,13 +333,11 @@ new-from() {
 	gh repo create -p "$template" --public "$name"
 	gh repo clone "$name"
 	cd "$name" || return 1
-}
+} && export -f new-from
 
-new-bonzai() { new-from rwxrob/bonzai-example "$1"; }
-new-cmd() { new-from rwxrob/template-bash-command "cmd-$1"; }
-cdz() { cd $(zet get "$@"); }
-
-export -f new-from new-bonzai new-cmd
+# -- clone: smart GitHub repo cloner --
+# Accepts full HTTPS/SSH URLs or bare "user/repo" / "repo" strings.
+# Clones under ~/Repos/github.com/<user>/ and cd into the result.
 
 clone() {
 	local repo="$1" user
@@ -316,7 +360,9 @@ clone() {
 	cd "$name"
 } && export -f clone
 
-# ------------- source external dependencies / completion ------------
+# === COMPLETIONS ===
+# Register tab-completion for custom Bonzai-style commands and external tools.
+# Each external tool's completion is loaded only if the binary is present.
 
 owncomp=(
 	pdf md zet yt gl auth pomo config live iam sshkey ws x z clip
@@ -329,23 +375,23 @@ for i in "${owncomp[@]}"; do complete -C "$i" "$i"; done
 _have gh && . <(gh completion -s bash)
 _have pandoc && . <(pandoc --bash-completion)
 _have kubectl && . <(kubectl completion bash 2>/dev/null)
-_have spotify && . <(spotify completion bash 2>/dev/null)
-#_have clusterctl && . <(clusterctl completion bash)
 _have k && complete -o default -F __start_kubectl k
 _have kind && . <(kind completion bash)
 _have kompose && . <(kompose completion bash)
 _have helm && . <(helm completion bash)
 _have minikube && . <(minikube completion bash)
-_have conftest && . <(conftest completion bash)
-_have mk && complete -o default -F __start_minikube mk
-_have podman && _source_if "$HOME/.local/share/podman/completion" # d
-_have docker && _source_if "$HOME/.local/share/docker/completion" # d
-_have docker-compose && complete -F _docker_compose dc            # dc
-
-# -------------------- personalized configuration --------------------
-_source_if "$HOME/.bash_personal"
-_source_if "$HOME/.bash_private"
-_source_if "$HOME/.bash_work"
+_have docker && _source_if "$HOME/.local/share/docker/completion"
+_have docker-compose && complete -F _docker_compose dc
 
 complete -C /usr/bin/terraform terraform
 complete -C /usr/bin/terraform tf
+
+# === EXTERNAL CONFIG ===
+# Source optional local overrides that are not tracked in version control.
+# Use these for machine-specific, personal, or sensitive settings.
+
+_have x && eval "$(_X_COMPLETE=bash_source x)"
+
+_source_if "$HOME/.bash_personal"
+_source_if "$HOME/.bash_private"
+_source_if "$HOME/.bash_work"
