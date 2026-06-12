@@ -1,0 +1,14 @@
+---
+- name: Ensure pipx bin dir is in PATH
+  ansible.builtin.command:
+    cmd: pipx ensurepath
+  changed_when: false
+
+- name: Install toolbox via pipx
+  ansible.builtin.command:
+    cmd: pipx install git+https://github.com/LionelPinheiroDuarte/toolbox.git
+  register: pipx_result
+  changed_when: "'installed package' in pipx_result.stdout"
+  failed_when:
+    - pipx_result.rc != 0
+    - "'already seems to be installed' not in pipx_result.stderr"

@@ -20,3 +20,4 @@
     - vars/packages.yml
   roles:
     - { role: dotfiles, tags: dotfiles }
+    - { role: toolbox,  tags: toolbox }

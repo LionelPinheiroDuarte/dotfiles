@@ -21,6 +21,7 @@ apt_dev_packages:
   - python3
   - python3-pip
   - python3-venv
+  - pipx
 
 pip_packages:
   - mkdocs
