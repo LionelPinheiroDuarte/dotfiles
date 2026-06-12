@@ -6,7 +6,7 @@
 
 - name: Install toolbox via pipx
   ansible.builtin.command:
-    cmd: /usr/bin/pipx install git+https://github.com/LionelPinheiroDuarte/toolbox.git
+    cmd: /usr/bin/pipx install "toolbox @ git+https://github.com/LionelPinheiroDuarte/toolbox.git"
   register: pipx_result
   changed_when: "'installed package' in pipx_result.stdout"
   failed_when:
