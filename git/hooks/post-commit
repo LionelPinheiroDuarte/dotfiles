@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+#
+# post-commit — launch the Claude README/portfolio sync agent after a commit.
+#
+# Versioned in dotfiles/git/hooks/post-commit and wired into repos two ways
+# (see scripts/install-git-hooks.sh):
+#   - new repos : copied by git's init.templateDir on clone/init
+#   - existing  : symlinked into each repo's .git/hooks/post-commit
+#
+# post-commit is informational — git ignores its exit code — but we still
+# `exit 0` everywhere so nothing here can ever disrupt a commit.
+
+# --- Re-entry guard --------------------------------------------------------
+# The sync agent makes its own commits (e.g. the README update). Those child
+# git processes inherit this env var, so their post-commit fires here and
+# bails immediately instead of recursing forever.
+[ -n "$CLAUDE_README_SYNC" ] && exit 0
+
+# --- Claude-session guard --------------------------------------------------
+# Commits made from inside a running Claude session (git-manager, autonomous
+# commits) already happen where docs can be handled directly; spawning a
+# background agent per commit there just causes noise and nesting.
+# Comment this line out to also fire on Claude-made commits.
+[ -n "$CLAUDECODE" ] && exit 0
+
+# --- Environment requirements ----------------------------------------------
+command -v claude >/dev/null 2>&1 || exit 0
+command -v tmux   >/dev/null 2>&1 || exit 0
+[ -n "$TMUX" ] || exit 0   # only meaningful inside a tmux session
+
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+repo_name=$(basename "$repo_root")
+sha=$(git rev-parse --short HEAD 2>/dev/null)
+
+# --- Scope guard -----------------------------------------------------------
+# core.hooksPath is global, so this hook is invoked for every repo on the
+# machine. Only run the sync for personal projects under $GITHUB.
+github="${GITHUB:-$HOME/repos/github}"
+case "$repo_root" in
+  "$github"/*) ;;
+  *) exit 0 ;;
+esac
+
+# Never touch the portfolio repo itself — the agent edits it; a commit there
+# should not spawn another sync run.
+[ "$repo_name" = "portfolio" ] && exit 0
+
+log="$HOME/.claude/post-commit-sync.log"
+prompt="Use the post-commit-sync agent to process the repository at ${repo_root} (triggering commit ${sha}). Follow its relevance filter first and do nothing if the commit is not doc-worthy."
+
+# --- Launch the agent in a detached tmux window ----------------------------
+# -d: don't steal focus. The window persists after the run (remain-on-exit-ish
+# via a trailing read) so proposed portfolio changes stay visible for review.
+tmux new-window -d -n "sync:${repo_name}" "
+  printf '\\n=== post-commit sync: %s (%s) ===\\n\\n' '${repo_name}' '${sha}'
+  CLAUDE_README_SYNC=1 claude -p '${prompt}' --permission-mode acceptEdits 2>&1 | tee -a '${log}'
+  printf '\\n[sync done — review any portfolio changes, then press enter to close]\\n'
+  read -r _
+"
+
+exit 0
