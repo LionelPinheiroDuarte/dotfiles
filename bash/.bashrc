@@ -263,16 +263,11 @@ PROMPT_COMMAND='log_output; __ps1'
 unalias -a
 
 # -- Navigation: repos --
-# Quick jumps to GitHub projects.
+# Auto-generate one alias per project in $GITHUB — no manual maintenance needed.
 
-alias github='cd $GITHUB'
-alias agents='cd $GITHUB/agents'
-alias brain='cd $GITHUB/brain'
-alias dotfiles='cd $GITHUB/dotfiles'
-alias job='cd $GITHUB/job-listing'
-alias portfolio='cd $GITHUB/portfolio'
-alias toolbox='cd $GITHUB/toolbox'
-alias ghmanager='cd $GITHUB/gh-manager'
+for d in "$GITHUB"/*/; do
+    alias "$(basename "$d")"="cd $d"
+done
 
 # -- Navigation: documents --
 
