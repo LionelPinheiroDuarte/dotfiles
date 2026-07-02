@@ -3,3 +3,7 @@
 	name = Lionel Pinheiro Duarte
 [init]
 	defaultBranch = main
+[credential]
+	helper = !gh auth git-credential
+[core]
+	hooksPath = ~/.git-hooks

@@ -29,3 +29,18 @@
     - { src: "vim/.vim",      dest: ".vim" }
     - { src: "tmux/.tmux.conf", dest: ".tmux.conf" }
     - { src: ".gitconfig",    dest: ".gitconfig" }
+
+# Global git hooks dir — core.hooksPath (~/.git-hooks) is set via .gitconfig above.
+# Symlink only the post-commit hook so any other hooks in ~/.git-hooks are left alone.
+- name: Ensure global git hooks directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.git-hooks"
+    state: directory
+    mode: "0755"
+
+- name: Symlink the post-commit doc-sync hook
+  ansible.builtin.file:
+    src: "{{ ansible_env.HOME }}/repos/github/dotfiles/git/hooks/post-commit"
+    dest: "{{ ansible_env.HOME }}/.git-hooks/post-commit"
+    state: link
+    force: true
