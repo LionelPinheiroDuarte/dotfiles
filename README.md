@@ -27,6 +27,7 @@ docker run --rm dotfiles-test
 - **Git** — global config and aliases
 - **Emacs** — literate config via `config.org`
 - **Ansible** — idempotent playbook covering base tools, dev stack (Go, Node, Python, gh) and DevOps tools (Docker, kubectl, Terraform, AWS CLI)
+- **Claude Code** — custom hooks under `.claude/hooks/`, e.g. a `feat`-commit trigger that keeps project READMEs in sync
 
 ## Credits
 
