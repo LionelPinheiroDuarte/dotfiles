@@ -17,6 +17,13 @@
     update: false
   when: not dotfiles_dir.stat.exists
 
+# ~/.claude must exist before we can symlink settings.json into it.
+- name: Ensure ~/.claude exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.claude"
+    state: directory
+    mode: "0755"
+
 - name: Symlink dotfiles to $HOME
   ansible.builtin.file:
     src: "{{ ansible_env.HOME }}/repos/github/dotfiles/{{ item.src }}"
@@ -29,3 +36,4 @@
     - { src: "vim/.vim",      dest: ".vim" }
     - { src: "tmux/.tmux.conf", dest: ".tmux.conf" }
     - { src: ".gitconfig",    dest: ".gitconfig" }
+    - { src: ".claude/settings.json", dest: ".claude/settings.json" }

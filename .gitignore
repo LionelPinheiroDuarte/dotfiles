@@ -9,3 +9,6 @@ Thumbs.db
 # Python
 __pycache__/
 *.pyc
+
+# Claude Code — local, machine-specific (absolute paths, permission allow-list)
+.claude/settings.local.json
