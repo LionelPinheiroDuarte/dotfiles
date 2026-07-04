@@ -12,3 +12,6 @@ __pycache__/
 
 # Claude Code — local, machine-specific (absolute paths, permission allow-list)
 .claude/settings.local.json
+
+# Machine-specific git credentials (written by gh auth login)
+.gitconfig.local
