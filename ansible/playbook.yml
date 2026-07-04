@@ -3,6 +3,7 @@
 - name: System packages and tools
   hosts: local
   become: true
+  tags: [base, dev, devops]
   vars_files:
     - vars/packages.yml
   vars:
