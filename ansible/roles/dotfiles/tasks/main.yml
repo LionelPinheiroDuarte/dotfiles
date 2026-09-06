@@ -37,3 +37,19 @@
     - { src: "tmux/.tmux.conf", dest: ".tmux.conf" }
     - { src: ".gitconfig",    dest: ".gitconfig" }
     - { src: ".claude/settings.json", dest: ".claude/settings.json" }
+
+# ~/.local/bin must exist and be on PATH before we can symlink scripts into it.
+- name: Ensure ~/.local/bin exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: "0755"
+
+- name: Symlink scripts into ~/.local/bin
+  ansible.builtin.file:
+    src: "{{ ansible_env.HOME }}/repos/github/dotfiles/scripts/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/.local/bin/{{ item }}"
+    state: link
+    force: true
+  loop:
+    - home

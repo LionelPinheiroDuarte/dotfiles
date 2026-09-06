@@ -2,14 +2,21 @@
 
 SESSION="home"
 
-tmux new-session -d -s $SESSION -n emacs
-tmux send-keys -t $SESSION:emacs "emacs" C-m
+# Create the session only if it doesn't already exist (idempotent).
+if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+    tmux new-session -d -s "$SESSION" -n claude
+    tmux send-keys -t "$SESSION:claude" "claude" C-m
 
-#sleep 10
+    tmux new-window -t "$SESSION" -n shell
 
-tmux new-window -t $SESSION -n shell
+    tmux new-window -t "$SESSION" -n server
 
-tmux new-window -t $SESSION -n server
+    tmux select-window -t "$SESSION:claude"
+fi
 
-tmux select-window -t $SESSION:1
-tmux attach-session -t $SESSION
+# Attach (or switch, if already inside tmux).
+if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$SESSION"
+else
+    tmux attach-session -t "$SESSION"
+fi
