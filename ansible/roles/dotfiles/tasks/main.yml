@@ -53,3 +53,5 @@
     force: true
   loop:
     - home
+    - ghrepos
+    - setup
