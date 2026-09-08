@@ -1,8 +1,5 @@
 {
   "model": "Opus",
-  "effortLevel": "high",
-  "tui": "fullscreen",
-  "theme": "dark-ansi",
   "hooks": {
     "PostToolUse": [
       {
@@ -10,11 +7,16 @@
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git *)",
-            "command": "python3 $HOME/repos/github/dotfiles/.claude/hooks/feat-doc-sync.py"
+            "command": "python3 $HOME/repos/github/dotfiles/.claude/hooks/feat-doc-sync.py",
+            "if": "Bash(git *)"
           }
         ]
       }
     ]
-  }
+  },
+  "effortLevel": "high",
+  "tui": "fullscreen",
+  "theme": "dark-ansi",
+  "editorMode": "vim",
+  "agentPushNotifEnabled": false
 }
