@@ -1,0 +1,30 @@
+#!/bin/bash
+# Fuzzy-pick a file recently written by Claude Code and open it in Vim,
+# in a new tmux window. Meant to run inside a tmux popup (see .tmux.conf).
+#
+# The list comes from the log-edits hook (agents/hooks/log-edits.py):
+# newest first, one entry per file, deleted files skipped.
+#
+#   claude-edits          all sessions
+#   claude-edits <dir>    only files under <dir> (e.g. the pane's repo)
+
+LOG="${XDG_STATE_HOME:-$HOME/.local/state}/claude/edits.log"
+PREVIEW=$(command -v batcat || command -v bat)
+
+if [ ! -s "$LOG" ]; then
+  echo "No edits logged yet ($LOG)."
+  read -rsn1
+  exit 0
+fi
+
+filter="${1:+$(realpath "$1")/}"
+
+file=$(tac "$LOG" | cut -f3 | awk '!seen[$0]++' \
+  | while IFS= read -r f; do
+      [[ -f "$f" && "$f" == "$filter"* ]] && echo "$f"
+    done \
+  | fzf --prompt 'claude edits> ' \
+        --preview "${PREVIEW:-cat} ${PREVIEW:+--color=always --style=numbers} {}")
+
+[ -n "$file" ] || exit 0
+tmux new-window -c "$(dirname "$file")" -n "$(basename "$file")" "vim '$file'"

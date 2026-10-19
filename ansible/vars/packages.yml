@@ -8,6 +8,7 @@ apt_base_packages:
   - jq
   - make
   - bat
+  - fzf
   - pandoc
   - ffmpeg
   - ca-certificates

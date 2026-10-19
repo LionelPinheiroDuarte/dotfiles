@@ -28,6 +28,7 @@ docker run --rm dotfiles-test
 - **Emacs** — literate config via `config.org`
 - **Ansible** — idempotent playbook covering base tools, dev stack (Go, Node, Python, gh) and DevOps tools (Docker, kubectl, Terraform, AWS CLI)
 - **Claude Code** — custom hooks under `.claude/hooks/`, e.g. a `feat`-commit trigger that keeps project READMEs in sync
+- **`claude-edits`** — tmux popup (`prefix + e`, or `prefix + E` for the current directory only) listing the files Claude Code recently wrote; pick one with fzf and it opens in Vim in a new window. Fed by the `log-edits` hook from [agents](https://github.com/LionelPinheiroDuarte/agents)
 
 ## Credits
 

@@ -11,6 +11,15 @@
             "if": "Bash(git *)"
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$HOME/repos/github/agents/hooks/log-edits.py; [ -f \"$f\" ] && python3 \"$f\" || true"
+          }
+        ]
       }
     ]
   },
