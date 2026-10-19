@@ -106,7 +106,8 @@ file=$(tac "$LOG" | awk -F'\t' '!seen[$3]++ { print $1 "\t" $3 }' \
       fi
       printf '%4s\t%s\t%s\n' "$age" "$short" "$f"
     done \
-  | fzf --prompt 'claude edits> ' --delimiter '\t' --with-nth 1,2 \
+  | fzf --prompt 'search> ' --delimiter '\t' --with-nth 1,2 \
+        --preview-window 'right,66%' \
         --header 'enter: vim (then ,d for the diff) · ctrl-d: diff now · ctrl-f: diff/file preview' \
         --preview "'$self' --preview {3} '$MODE'" \
         --bind "ctrl-f:execute-silent('$self' --toggle '$MODE')+refresh-preview" \
