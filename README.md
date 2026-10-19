@@ -28,7 +28,7 @@ docker run --rm dotfiles-test
 - **Emacs** — literate config via `config.org`
 - **Ansible** — idempotent playbook covering base tools, dev stack (Go, Node, Python, gh) and DevOps tools (Docker, kubectl, Terraform, AWS CLI)
 - **Claude Code** — custom hooks under `.claude/hooks/`, e.g. a `feat`-commit trigger that keeps project READMEs in sync
-- **`claude-edits`** — tmux popup (`prefix + e`, or `prefix + E` for the current directory only) listing the files Claude Code recently wrote, with a diff of what Claude changed in the preview; `enter` opens the file in Vim, where `,d` toggles a before/after diff (`ctrl+d` in the list opens it straight away). Fed by the [`log-edits`](https://github.com/LionelPinheiroDuarte/agents/tree/main/hooks/log-edits) hook from agents
+- **`claude-edits`** — tmux popup (`prefix + e`, or `prefix + E` for the current directory only) listing the files Claude Code recently wrote, with a diff of what Claude changed in the preview; `enter` opens the file in Vim, where `,d` shows a `git diff`-style view of Claude's changes and `,D` a side-by-side diff (`ctrl+d` in the list opens the diff straight away). Fed by the [`log-edits`](https://github.com/LionelPinheiroDuarte/agents/tree/main/hooks/log-edits) hook from agents
 
 ## Credits
 

@@ -12,7 +12,7 @@
 #   claude-edits <dir>    only files under <dir> (e.g. the pane's repo)
 #
 # Keys in the list: enter = vim · ctrl-d = vimdiff before/after · ctrl-f = diff/file
-# Keys in Vim (claude-edits.vim): ,d = toggle the before/after diff · q = quit it
+# Keys in Vim (claude-edits.vim): ,d = git-diff-like view · ,D = side-by-side vimdiff
 
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/claude"
 LOG="$STATE/edits.log"
