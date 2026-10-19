@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "f=$HOME/repos/github/agents/hooks/log-edits.py; [ -f \"$f\" ] && python3 \"$f\" || true"
+            "command": "f=$HOME/repos/github/agents/hooks/log-edits/log-edits.py; [ -f \"$f\" ] && python3 \"$f\" || true"
           }
         ]
       }
