@@ -11,13 +11,15 @@
 #   claude-edits          all sessions
 #   claude-edits <dir>    only files under <dir> (e.g. the pane's repo)
 #
-# Keys: enter = vim · ctrl-d = vimdiff before/after · ctrl-f = diff/file preview
+# Keys in the list: enter = vim · ctrl-d = vimdiff before/after · ctrl-f = diff/file
+# Keys in Vim (claude-edits.vim): ,d = toggle the before/after diff · q = quit it
 
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/claude"
 LOG="$STATE/edits.log"
 SNAPSHOTS="$STATE/snapshots"
 PREVIEW=$(command -v batcat || command -v bat)
 MODE="${TMPDIR:-/tmp}/claude-edits-mode.$$"
+VIMSCRIPT="$(dirname "$(realpath "$0")")/claude-edits.vim"
 
 # Print the "before" file for a path ("/dev/null" if Claude created it),
 # or nothing if no snapshot exists.
@@ -32,6 +34,16 @@ before_of() {
 
 show_file() {
   if [ -n "$PREVIEW" ]; then "$PREVIEW" --color=always --style=numbers "$1"; else cat "$1"; fi
+}
+
+# Open a file in Vim in a new tmux window, with ,d ready to show Claude's diff.
+# Extra args are passed to vim (e.g. -c ClaudeDiff to start in the diff).
+open_in_vim() {
+  local path="$1" before="$2"; shift 2
+  local name; name=$(basename "$path")
+  [ $# -gt 0 ] && name="diff:$name"
+  tmux new-window -c "$(dirname "$path")" -n "$name" \
+    "vim -c \"let g:claude_before='$before'\" -S '$VIMSCRIPT' $* '$path'"
 }
 
 case "$1" in
@@ -58,9 +70,7 @@ case "$1" in
     path="$2"
     before=$(before_of "$path")
     [ -n "$before" ] || exit 0
-    # left: read-only "before" with the real file's syntax; right: the real file
-    tmux new-window -c "$(dirname "$path")" -n "diff:$(basename "$path")" \
-      "vim -d '$before' '$path' -c 'wincmd h' -c 'exe \"setf\" getwinvar(2, \"&ft\")' -c 'setl readonly nomodifiable' -c 'wincmd l'"
+    open_in_vim "$path" "$before" -c ClaudeDiff
     exit 0
     ;;
 esac
@@ -87,11 +97,11 @@ file=$(tac "$LOG" | awk -F'\t' '!seen[$3]++ { print $1 "\t" $3 }' \
       printf '%4s\t%s\n' "$age" "$f"
     done \
   | fzf --prompt 'claude edits> ' --delimiter '\t' \
-        --header 'enter: vim · ctrl-d: vimdiff · ctrl-f: diff/file' \
+        --header 'enter: vim (then ,d for the diff) · ctrl-d: diff now · ctrl-f: diff/file preview' \
         --preview "'$self' --preview {2} '$MODE'" \
         --bind "ctrl-f:execute-silent('$self' --toggle '$MODE')+refresh-preview" \
         --bind "ctrl-d:execute-silent('$self' --vimdiff {2})+abort" \
   | cut -f2)
 
 [ -n "$file" ] || exit 0
-tmux new-window -c "$(dirname "$file")" -n "$(basename "$file")" "vim '$file'"
+open_in_vim "$file" "$(before_of "$file")"
