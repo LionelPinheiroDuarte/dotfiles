@@ -1,5 +1,4 @@
 {
-  "model": "Opus",
   "hooks": {
     "PostToolUse": [
       {
@@ -7,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 $HOME/repos/github/dotfiles/.claude/hooks/feat-doc-sync.py",
+            "command": "d=$HOME/Repos/github; [ -d \"$d\" ] || d=$HOME/repos/github; python3 \"$d/dotfiles/.claude/hooks/feat-doc-sync.py\"",
             "if": "Bash(git *)"
           }
         ]
@@ -17,7 +16,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "f=$HOME/repos/github/agents/hooks/log-edits/log-edits.py; [ -f \"$f\" ] && python3 \"$f\" || true"
+            "command": "d=$HOME/Repos/github; [ -d \"$d\" ] || d=$HOME/repos/github; f=$d/agents/hooks/log-edits/log-edits.py; [ -f \"$f\" ] && python3 \"$f\" || true"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.local/bin/claude-usage\" collect --quiet 2>/dev/null || true",
+            "timeout": 60
           }
         ]
       }
@@ -27,5 +37,33 @@
   "tui": "fullscreen",
   "theme": "dark-ansi",
   "editorMode": "vim",
-  "agentPushNotifEnabled": false
+  "agentPushNotifEnabled": false,
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: assume private unless the remote host and repo name indicate otherwise, or a visibility check in the transcript shows public",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: unknown — no remotes configured, origin/HEAD unset",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine or CI runner with open internet",
+      "**Source control**: The trusted repo and its remote(s) only (no additional orgs configured) — as scoped by the Trusted repo and Repository visibility entries above",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: None configured",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment (hyphen/underscore/dot-delimited — e.g. matches `prod-db`, not `producer`)",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development — personal/hobby projects (DevOps learning, AI tooling, job search automation) per user's ~/.claude/CLAUDE.md",
+      "**Trusted repo**: the home directory has no tracked files and no git remotes configured — no trusted repo could be identified for this session",
+      "**Org-specific CLIs**: None configured — personal toolbox CLI (`x`) and other personal scripts observed in shell history are individual, not org-specific"
+    ]
+  }
 }
