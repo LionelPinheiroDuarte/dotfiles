@@ -25,8 +25,8 @@ USER testuser
 WORKDIR /home/testuser
 
 # Copy dotfiles repo into the expected location
-COPY --chown=testuser:testuser . /home/testuser/repos/github/dotfiles
+COPY --chown=testuser:testuser . /home/testuser/Repos/github/dotfiles
 
 CMD ["ansible-playbook", \
-     "/home/testuser/repos/github/dotfiles/ansible/playbook.yml", \
-     "-i", "/home/testuser/repos/github/dotfiles/ansible/inventory.ini"]
+     "/home/testuser/Repos/github/dotfiles/ansible/playbook.yml", \
+     "-i", "/home/testuser/Repos/github/dotfiles/ansible/inventory.ini"]

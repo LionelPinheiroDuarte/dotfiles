@@ -88,7 +88,7 @@ trap 'rm -f "$MODE"' EXIT
 # newest first, one line per file: "<age>\t<short path>\t<path>"; only the first
 # two are shown, the full path stays in a hidden field for the actions
 now=$(date +%s)
-GITHUB_DIR="${GITHUB:-$HOME/repos/github}"
+GITHUB_DIR="${GITHUB:-$HOME/Repos/github}"
 file=$(tac "$LOG" | awk -F'\t' '!seen[$3]++ { print $1 "\t" $3 }' \
   | while IFS=$'\t' read -r ts f; do
       [[ -f "$f" && "$f" == "$filter"* ]] || continue

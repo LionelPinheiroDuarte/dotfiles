@@ -28,15 +28,18 @@ _source_if() { [[ -r "$1" ]] && source "$1"; }
 # === ENVIRONMENT VARIABLES ===
 
 # -- Personal paths --
-# REPOS/GHREPOS follow the ~/Repos/github.com/<user>/ layout used by clone().
-# GITHUB is the actual working location for day-to-day projects.
+# Own repos live in $GITHUB (~/Repos/github), other people's under $REPOS/<user>.
+# Falls back to the old lowercase dirs on machines not migrated yet.
+
+_first_dir() { for d in "$@"; do [[ -d "$d" ]] && echo "$d" && return; done; echo "$1"; }
 
 export USER="${USER:-$(whoami)}"
-export GITUSER="$USER"
-export REPOS="$HOME/Repos"
-export GHREPOS="$REPOS/github.com/$GITUSER"
-export GITHUB="$HOME/repos/github"
-export JOURNAL="$HOME/documents/journal"
+export GITUSER="LionelPinheiroDuarte"
+export REPOS="$(_first_dir "$HOME/Repos" "$HOME/repos")"
+export GITHUB="$REPOS/github"
+export GHREPOS="$GITHUB"
+export DOCUMENTS="$(_first_dir "$HOME/Documents" "$HOME/documents")"
+export JOURNAL="$DOCUMENTS/journal"
 
 # -- Editor & terminal --
 # vi/vim as default editor; xterm-256color for full colour support.
@@ -332,7 +335,7 @@ new-from() {
 
 # -- clone: smart GitHub repo cloner --
 # Accepts full HTTPS/SSH URLs or bare "user/repo" / "repo" strings.
-# Clones under ~/Repos/github.com/<user>/ and cd into the result.
+# Own repos go to $GITHUB, others to $REPOS/<user>/; cd into the result.
 
 clone() {
 	local repo="$1" user
@@ -345,7 +348,8 @@ clone() {
 		[[ -z "$user" ]] && user="$USER"
 	fi
 	local name="${repo##*/}"
-	local userd="$REPOS/github.com/$user"
+	local userd="$REPOS/$user"
+	[[ "$user" == "$GITUSER" ]] && userd="$GITHUB"
 	local path="$userd/$name"
 	[[ -d "$path" ]] && cd "$path" && return
 	mkdir -p "$userd"

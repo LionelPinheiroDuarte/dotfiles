@@ -4,7 +4,7 @@ set -e
 #TODO
    # Create a nice documentation for users 
    
-DIR=~/home/liopin
+DIR="${GITHUB:-$HOME/Repos/github}"
 
 check_dir(){
 if [ -d "$DIR" ];then
