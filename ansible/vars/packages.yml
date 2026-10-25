@@ -17,6 +17,9 @@ apt_base_packages:
   - lsb-release
   - unzip
   - pcregrep
+  - shellcheck
+  - sshpass
+  - bashtop
 
 apt_dev_packages:
   - python3
@@ -35,6 +38,8 @@ pip_packages:
 npm_global_packages:
   - prettier
 
-go_version: "1.23.4"
+go_version: "1.27.3"
 node_major_version: "22"
-kubectl_version: "v1.31"
+kubectl_version: "v1.37"
+
+github_dir: "{{ ansible_env.HOME }}/Repos/github"

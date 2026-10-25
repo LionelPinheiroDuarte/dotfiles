@@ -5,25 +5,38 @@
     name: "{{ apt_dev_packages }}"
     state: present
 
-# Go — official binary tarball
-- name: Check if Go is installed
-  ansible.builtin.stat:
-    path: /usr/local/go/bin/go
-  register: go_binary
+# Go — official binary tarball, reinstalled when go_version changes
+- name: Check installed Go version
+  ansible.builtin.command:
+    cmd: /usr/local/go/bin/go version
+  register: go_installed
+  changed_when: false
+  failed_when: false
+
+- name: Set Go install flag
+  ansible.builtin.set_fact:
+    go_needs_install: "{{ ('go' ~ go_version ~ ' ') not in (go_installed.stdout | default('')) }}"
 
 - name: Download Go tarball
   ansible.builtin.get_url:
     url: "https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz"
     dest: /tmp/go.tar.gz
     mode: "0644"
-  when: not go_binary.stat.exists
+  when: go_needs_install
+
+# Extracting over an old tree leaves stale files behind — Go's docs say remove first.
+- name: Remove previous Go install
+  ansible.builtin.file:
+    path: /usr/local/go
+    state: absent
+  when: go_needs_install
 
 - name: Extract Go to /usr/local
   ansible.builtin.unarchive:
     src: /tmp/go.tar.gz
     dest: /usr/local
     remote_src: true
-  when: not go_binary.stat.exists
+  when: go_needs_install
 
 - name: Add Go to PATH via profile.d
   ansible.builtin.copy:
