@@ -1,4 +1,33 @@
 ---
+# Keyrings moved from .gpg to .asc. apt_repository appends the new line next to the
+# old one, and apt rejects two Signed-By values for the same source — which breaks
+# every later apt task. Drop the legacy lines before the first cache update.
+- name: Clean up legacy .gpg apt sources
+  vars:
+    legacy_apt_sources:
+      - { list: nodesource, key: nodesource }
+      - { list: charm,      key: charm }
+      - { list: docker,     key: docker }
+      - { list: hashicorp,  key: hashicorp-archive-keyring }
+      - { list: kubernetes, key: kubernetes-apt-keyring }
+  block:
+    - name: Remove source lines signed by a legacy keyring
+      ansible.builtin.lineinfile:
+        path: "/etc/apt/sources.list.d/{{ item.list }}.list"
+        regexp: "signed-by=/etc/apt/keyrings/{{ item.key }}\\.gpg"
+        state: absent
+      loop: "{{ legacy_apt_sources }}"
+      loop_control:
+        label: "{{ item.list }}"
+
+    - name: Remove legacy keyrings
+      ansible.builtin.file:
+        path: "/etc/apt/keyrings/{{ item.key }}.gpg"
+        state: absent
+      loop: "{{ legacy_apt_sources }}"
+      loop_control:
+        label: "{{ item.key }}"
+
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: true

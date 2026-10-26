@@ -2,7 +2,10 @@
 set -euo pipefail
 
 DOTFILES_REPO="https://github.com/LionelPinheiroDuarte/dotfiles.git"
-DOTFILES_DIR="$HOME/Repos/github/dotfiles"
+# Same fallback as bash/.bashrc: reuse ~/repos on machines not migrated to ~/Repos.
+GITHUB_DIR="$HOME/Repos/github"
+[[ ! -d "$GITHUB_DIR" && -d "$HOME/repos/github" ]] && GITHUB_DIR="$HOME/repos/github"
+DOTFILES_DIR="$GITHUB_DIR/dotfiles"
 
 # Colors
 RED='\033[0;31m'
@@ -26,7 +29,7 @@ info "Cloning dotfiles..."
 if [[ -d "$DOTFILES_DIR" ]]; then
     warning "Dotfiles already present at $DOTFILES_DIR — skipping clone."
 else
-    mkdir -p "$HOME/Repos/github"
+    mkdir -p "$GITHUB_DIR"
     git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
 fi
 

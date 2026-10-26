@@ -1,4 +1,18 @@
 ---
+# Same fallback as bash/.bashrc: keep using ~/repos on machines not migrated to ~/Repos,
+# instead of cloning a second copy and repointing the symlinks at it.
+- name: Check for a legacy lowercase repos directory
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/repos/github"
+  register: legacy_github_dir
+
+- name: Fall back to ~/repos/github when ~/Repos/github is missing
+  ansible.builtin.set_fact:
+    github_dir: "{{ legacy_github_dir.stat.path }}"
+  when:
+    - legacy_github_dir.stat.isdir | default(false)
+    - github_dir is not exists
+
 - name: Create repos directory
   ansible.builtin.file:
     path: "{{ github_dir }}"
