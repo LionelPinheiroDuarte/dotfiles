@@ -62,6 +62,12 @@ export CGO_ENABLED=0
 
 export PYTHONDONTWRITEBYTECODE=2
 
+# -- Android SDK --
+# Command-line SDK (no Android Studio) installed by vocab's emulator script.
+# Expo CLI and Gradle look it up via ANDROID_HOME; only set where it exists.
+
+[[ -d "$HOME/Android/Sdk" ]] && export ANDROID_HOME="$HOME/Android/Sdk"
+
 # -- LESS / man page colours --
 # TERMCAP overrides to colourize man page headings and highlights in less.
 
@@ -151,6 +157,12 @@ pathappend \
 	/snap/bin \
 	/sbin \
 	/bin
+
+# Android SDK tools (adb, emulator, sdkmanager) — skipped when ANDROID_HOME is unset.
+[[ -n "$ANDROID_HOME" ]] && pathappend \
+	"$ANDROID_HOME/platform-tools" \
+	"$ANDROID_HOME/emulator" \
+	"$ANDROID_HOME/cmdline-tools/latest/bin"
 
 # === CDPATH ===
 # Directories searched by cd — lets you jump to a subdirectory from anywhere
