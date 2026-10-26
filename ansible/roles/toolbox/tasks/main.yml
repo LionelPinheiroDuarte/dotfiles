@@ -1,14 +1,7 @@
 ---
-- name: Ensure pipx bin dir is in PATH
-  ansible.builtin.command:
-    cmd: /usr/bin/pipx ensurepath
-  changed_when: false
-
+# ~/.local/bin is already on PATH via bash/.bashrc, so no `pipx ensurepath` needed.
+# creates: skips the install once pipx has built the venv; a failed install leaves none.
 - name: Install toolbox via pipx
   ansible.builtin.command:
     cmd: /usr/bin/pipx install "toolbox @ git+https://github.com/LionelPinheiroDuarte/toolbox.git"
-  register: pipx_result
-  changed_when: "'installed package' in pipx_result.stdout"
-  failed_when:
-    - pipx_result.rc != 0
-    - "'already seems to be installed' not in pipx_result.stderr"
+    creates: "{{ ansible_env.HOME }}/.local/share/pipx/venvs/toolbox"
