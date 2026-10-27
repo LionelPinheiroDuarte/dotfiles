@@ -8,7 +8,6 @@ apt_base_packages:
   - jq
   - make
   - bat
-  - fzf
   - pandoc
   - ffmpeg
   - ca-certificates
@@ -39,6 +38,7 @@ npm_global_packages:
   - prettier
 
 go_version: "1.27.3"
+fzf_version: "0.74.5"
 node_major_version: "22"
 kubectl_version: "v1.37"
 

@@ -44,6 +44,52 @@
     content: "export PATH=$PATH:/usr/local/go/bin\n"
     mode: "0644"
 
+# fzf — official binary: Debian's package lags far behind (0.44), and the
+# claude-edits / claude-projects popups need >= 0.61
+- name: Check installed fzf version
+  ansible.builtin.command:
+    cmd: /usr/local/bin/fzf --version
+  register: fzf_installed
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  tags: fzf
+
+- name: Set fzf install flag
+  ansible.builtin.set_fact:
+    fzf_needs_install: "{{ not (fzf_installed.stdout | default('')).startswith(fzf_version ~ ' ') }}"
+  tags: fzf
+
+- name: Download fzf tarball
+  ansible.builtin.get_url:
+    url: "https://github.com/junegunn/fzf/releases/download/v{{ fzf_version }}/fzf-{{ fzf_version }}-linux_amd64.tar.gz"
+    dest: /tmp/fzf.tar.gz
+    checksum: "sha256:https://github.com/junegunn/fzf/releases/download/v{{ fzf_version }}/fzf_{{ fzf_version }}_checksums.txt"
+    mode: "0644"
+  when: fzf_needs_install
+  tags: fzf
+
+- name: Extract fzf to /usr/local/bin
+  ansible.builtin.unarchive:
+    src: /tmp/fzf.tar.gz
+    dest: /usr/local/bin
+    remote_src: true
+    include: [fzf]
+    # the tarball is built on macOS: without these the binary keeps uid 501
+    owner: root
+    group: root
+    mode: "0755"
+  when: fzf_needs_install
+  tags: fzf
+
+# /usr/local/bin comes before /usr/bin in PATH anyway; removing the package
+# avoids two versions answering to `fzf`
+- name: Remove Debian's fzf package
+  ansible.builtin.apt:
+    name: fzf
+    state: absent
+  tags: fzf
+
 # Node.js — NodeSource official apt repo
 - name: Download NodeSource GPG key
   ansible.builtin.get_url:
