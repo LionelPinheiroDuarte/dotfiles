@@ -83,6 +83,7 @@
     - { src: "dotfiles/scripts/ghrepos",      dest: "ghrepos" }
     - { src: "dotfiles/scripts/setup",        dest: "setup" }
     - { src: "dotfiles/scripts/claude-edits", dest: "claude-edits" }
+    - { src: "dotfiles/scripts/claude-projects", dest: "claude-projects" }
     - { src: "agents/framework/scripts/claude-usage.py", dest: "claude-usage" }
     - { src: "agents/framework/scripts/proj-status",     dest: "proj-status" }
     - { src: "agents/framework/scripts/proj-check",      dest: "proj-check" }
