@@ -37,7 +37,8 @@
     update: false
   when: not dotfiles_dir.stat.exists
 
-# agents ships the framework scripts (claude-usage, proj-*) symlinked below.
+# agents ships the Claude tools (claude-edits, claude-projects) and the
+# framework scripts (claude-usage, proj-*) symlinked below.
 - name: Clone agents repository
   ansible.builtin.git:
     repo: https://github.com/LionelPinheiroDuarte/agents.git
@@ -82,8 +83,8 @@
     - { src: "dotfiles/scripts/home",         dest: "home" }
     - { src: "dotfiles/scripts/ghrepos",      dest: "ghrepos" }
     - { src: "dotfiles/scripts/setup",        dest: "setup" }
-    - { src: "dotfiles/scripts/claude-edits", dest: "claude-edits" }
-    - { src: "dotfiles/scripts/claude-projects", dest: "claude-projects" }
+    - { src: "agents/tools/claude-edits/claude-edits",       dest: "claude-edits" }
+    - { src: "agents/tools/claude-projects/claude-projects", dest: "claude-projects" }
     - { src: "agents/framework/scripts/claude-usage.py", dest: "claude-usage" }
     - { src: "agents/framework/scripts/proj-status",     dest: "proj-status" }
     - { src: "agents/framework/scripts/proj-check",      dest: "proj-check" }
