@@ -21,6 +21,26 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.local/bin/claude-projects\" state running >/dev/null 2>&1 || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.local/bin/claude-projects\" state done >/dev/null 2>&1 || true"
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [
@@ -28,6 +48,10 @@
             "type": "command",
             "command": "\"$HOME/.local/bin/claude-usage\" collect --quiet 2>/dev/null || true",
             "timeout": 60
+          },
+          {
+            "type": "command",
+            "command": "\"$HOME/.local/bin/claude-projects\" state none >/dev/null 2>&1 || true"
           }
         ]
       }
