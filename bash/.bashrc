@@ -415,3 +415,7 @@ _have x && eval "$(_X_COMPLETE=bash_source x)"
 _source_if "$HOME/.bash_personal"
 _source_if "$HOME/.bash_private"
 _source_if "$HOME/.bash_work"
+
+# The optional sources above return 1 when their file is missing; end on
+# success so the first prompt does not start with $?=1.
+true
