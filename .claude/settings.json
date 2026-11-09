@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$HOME/.local/bin/claude-projects\" state running >/dev/null 2>&1 || true"
+            "command": "\"$HOME/.local/bin/x\" claude projects state running >/dev/null 2>&1 || true"
           }
         ]
       }
@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$HOME/.local/bin/claude-projects\" state done >/dev/null 2>&1 || true"
+            "command": "\"$HOME/.local/bin/x\" claude projects state done >/dev/null 2>&1 || true"
           }
         ]
       }
@@ -51,7 +51,7 @@
           },
           {
             "type": "command",
-            "command": "\"$HOME/.local/bin/claude-projects\" state none >/dev/null 2>&1 || true"
+            "command": "\"$HOME/.local/bin/x\" claude projects state none >/dev/null 2>&1 || true"
           }
         ]
       }

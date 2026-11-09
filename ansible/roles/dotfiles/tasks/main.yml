@@ -37,8 +37,7 @@
     update: false
   when: not dotfiles_dir.stat.exists
 
-# agents ships the Claude tools (claude-edits, claude-projects) and the
-# framework scripts (claude-usage, proj-*) symlinked below.
+# agents ships the framework scripts (claude-usage, proj-*) symlinked below.
 - name: Clone agents repository
   ansible.builtin.git:
     repo: https://github.com/LionelPinheiroDuarte/agents.git
@@ -83,8 +82,14 @@
     - { src: "dotfiles/scripts/home",         dest: "home" }
     - { src: "dotfiles/scripts/ghrepos",      dest: "ghrepos" }
     - { src: "dotfiles/scripts/setup",        dest: "setup" }
-    - { src: "agents/tools/claude-edits/claude-edits",       dest: "claude-edits" }
-    - { src: "agents/tools/claude-projects/claude-projects", dest: "claude-projects" }
     - { src: "agents/framework/scripts/claude-usage.py", dest: "claude-usage" }
     - { src: "agents/framework/scripts/proj-status",     dest: "proj-status" }
     - { src: "agents/framework/scripts/proj-check",      dest: "proj-check" }
+
+# claude-edits and claude-projects moved to the toolbox (`x claude edits`,
+# `x claude projects`): drop their old links, which would dangle.
+- name: Remove the links of the old Claude tools
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/bin/{{ item }}"
+    state: absent
+  loop: [claude-edits, claude-projects]
