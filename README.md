@@ -23,7 +23,7 @@ docker run --rm dotfiles-test
 
 - **Bash** — aliases, environment, completions
 - **Vim** — lightweight config with vim-plug
-- **Tmux** — Ctrl+A prefix, vi-mode, custom status bar
+- **Tmux** — Ctrl+A prefix, vi-mode, custom status bar, `prefix + N` for the journal popup ([`x notes --browse`](https://github.com/LionelPinheiroDuarte/toolbox/tree/main/x/commands/notes), from toolbox)
 - **Git** — global config and aliases
 - **Emacs** — literate config via `config.org`
 - **Ansible** — idempotent playbook covering base tools, dev stack (Go, Node, Python, gh) and DevOps tools (Docker, kubectl, Terraform, AWS CLI)
