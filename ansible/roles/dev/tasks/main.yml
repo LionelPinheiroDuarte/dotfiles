@@ -122,9 +122,14 @@
     state: present
     filename: charm
 
+# vhs drives the terminal it records through ttyd, which the Charm package
+# doesn't depend on: without it vhs stops on "ttyd is not installed".
+# (ffmpeg, its other tool, comes with the base packages.)
 - name: Install VHS
   ansible.builtin.apt:
-    name: vhs
+    name:
+      - vhs
+      - ttyd
     state: present
     update_cache: true
 
