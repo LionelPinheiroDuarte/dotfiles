@@ -253,21 +253,30 @@ __ps1() {
 	fi
 }
 
-# log_output: capture stderr of failed commands for `x wtf`.
-# Writes the last command to /tmp/last_command.txt and re-runs it
-# (stderr only) to /tmp/last_error.txt. Skips python/x invocations
-# to avoid infinite loops or side effects.
+# log_output: remember the last failed command for `x wtf`.
+# Only records it: never re-runs anything from the prompt hook.
+# A command counts as new only if the history number moved, so the
+# first prompt of a shell (history loaded from file) and an empty
+# Enter or Ctrl+C are ignored.
 log_output() {
-	local exit_code=$?
-	local last_cmd
-	last_cmd=$(history 1 | awk '{$1=""; print $0}' | xargs)
-	if [[ $exit_code -ne 0 ]]; then
-		echo "$last_cmd" >/tmp/last_command.txt
-		case "$last_cmd" in
-			python3* | python* | x\ * | x) ;;
-			*) eval "$last_cmd" 2>/tmp/last_error.txt 1>/dev/null ;;
-		esac
+	local exit_code=$? num cmd
+	read -r num cmd < <(history 1)
+	if [[ -z ${__log_last_num+set} || $num == "$__log_last_num" ]]; then
+		__log_last_num=$num
+		return
 	fi
+	__log_last_num=$num
+	((exit_code)) && printf '%s\n' "$cmd" >/tmp/last_command.txt
+}
+
+# wtf: re-run the last failed command (on demand, in a subshell so a
+# `cd` cannot leak), capture its stderr, then ask `x wtf` about it.
+wtf() {
+	local cmd
+	cmd=$(</tmp/last_command.txt) || return
+	printf 're-running: %s\n' "$cmd" >&2
+	(eval "$cmd") 2>/tmp/last_error.txt >/dev/null
+	x wtf
 }
 
 PROMPT_COMMAND='log_output; __ps1'
