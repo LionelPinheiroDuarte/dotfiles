@@ -28,7 +28,7 @@ docker run --rm dotfiles-test
 - **Emacs** — literate config via `config.org`
 - **Ansible** — idempotent playbook covering base tools, dev stack (Go, Node, Python, gh) and DevOps tools (Docker, kubectl, Terraform, AWS CLI)
 - **Claude Code** — custom hooks under `.claude/hooks/`, e.g. a `feat`-commit trigger that keeps project READMEs in sync
-- **Claude tools** — tmux bindings for [`claude-edits`](https://github.com/LionelPinheiroDuarte/agents/tree/main/tools/claude-edits) (`prefix + e` / `prefix + E`) and [`claude-projects`](https://github.com/LionelPinheiroDuarte/agents/tree/main/tools/claude-projects) (`prefix + g`); the scripts live in agents and the playbook symlinks them into `~/.local/bin`
+- **Claude tools** — tmux bindings for the toolbox's [`x claude`](https://github.com/LionelPinheiroDuarte/toolbox/tree/main/x/commands/claude) popups: `x claude edits` (`prefix + e` / `prefix + E`) and `x claude projects` (`prefix + g`), whose state marks come from the Claude Code hooks in `.claude/settings.json`
 
 ## Credits
 

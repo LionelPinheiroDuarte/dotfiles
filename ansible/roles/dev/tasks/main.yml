@@ -45,7 +45,7 @@
     mode: "0644"
 
 # fzf — official binary: Debian's package lags far behind (0.44), and the
-# claude-edits / claude-projects popups need >= 0.66
+# fzf popups of the toolbox (x claude, x notes --browse) need >= 0.66
 - name: Check installed fzf version
   ansible.builtin.command:
     cmd: /usr/local/bin/fzf --version
