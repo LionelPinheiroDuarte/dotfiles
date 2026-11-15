@@ -406,6 +406,13 @@ _have docker-compose && complete -F _docker_compose dc
 complete -C /usr/bin/terraform terraform
 complete -C /usr/bin/terraform tf
 
+# === SYSTEMD USER SERVICES ===
+# User units (Hub's hourly production check) run outside the login shell: give the user
+# manager this session's ssh-agent socket, so a timer after a reboot still finds the key.
+if [ -n "${SSH_AUTH_SOCK:-}" ] && _have systemctl; then
+	systemctl --user import-environment SSH_AUTH_SOCK 2>/dev/null || true
+fi
+
 # === EXTERNAL CONFIG ===
 # Source optional local overrides that are not tracked in version control.
 # Use these for machine-specific, personal, or sensitive settings.
