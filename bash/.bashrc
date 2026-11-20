@@ -406,11 +406,13 @@ _have docker-compose && complete -F _docker_compose dc
 complete -C /usr/bin/terraform terraform
 complete -C /usr/bin/terraform tf
 
-# === SYSTEMD USER SERVICES ===
-# User units (Hub's hourly production check) run outside the login shell: give the user
-# manager this session's ssh-agent socket, so a timer after a reboot still finds the key.
-if [ -n "${SSH_AUTH_SOCK:-}" ] && _have systemctl; then
-	systemctl --user import-environment SSH_AUTH_SOCK 2>/dev/null || true
+# === SSH AGENT ===
+# One agent per session on a fixed socket (systemd/user/ssh-agent-socket.service), shared
+# with user units such as Hub's hourly production check. Set here too for shells that did
+# not inherit it from Plasma (tty, a tmux server started before the switch).
+if [ -S "${XDG_RUNTIME_DIR:-/nonexistent}/ssh-agent.socket" ]; then
+	export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+	unset SSH_AGENT_PID
 fi
 
 # === EXTERNAL CONFIG ===

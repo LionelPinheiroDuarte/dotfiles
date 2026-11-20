@@ -1,0 +1,19 @@
+# One ssh-agent per user session, on a socket whose path never changes
+# ($XDG_RUNTIME_DIR/ssh-agent.socket). environment.d and the Plasma env script point
+# SSH_AUTH_SOCK at it, so shells, GUI apps and user units (Hub's hourly production
+# check) share one agent without any `systemctl --user import-environment`.
+# Named apart from the distro's ssh-agent.service, which only starts under an
+# Xsession that has no agent yet.
+[Unit]
+Description=ssh-agent on a fixed socket
+Documentation=man:ssh-agent(1)
+
+[Service]
+Type=simple
+# A stale socket left by a crash would make ssh-agent refuse to bind.
+ExecStartPre=/usr/bin/rm -f %t/ssh-agent.socket
+ExecStart=/usr/bin/ssh-agent -D -a %t/ssh-agent.socket
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
