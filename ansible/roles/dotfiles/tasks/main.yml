@@ -71,7 +71,6 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/{{ item }}"
     state: directory
-    mode: "0755"
   loop: [.config/systemd/user, .config/environment.d, .config/plasma-workspace/env]
 
 - name: Symlink the ssh-agent config
