@@ -65,6 +65,34 @@
     - { src: ".gitconfig",    dest: ".gitconfig" }
     - { src: ".claude/settings.json", dest: ".claude/settings.json" }
 
+# The ssh-agent on a fixed socket: the unit, the user manager's SSH_AUTH_SOCK, and
+# Plasma's, so shells, apps and user timers share one agent.
+- name: Ensure the ssh-agent config directories exist
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/{{ item }}"
+    state: directory
+  loop: [.config/systemd/user, .config/environment.d, .config/plasma-workspace/env]
+
+- name: Symlink the ssh-agent config
+  ansible.builtin.file:
+    src: "{{ github_dir }}/dotfiles/{{ item.src }}"
+    dest: "{{ ansible_env.HOME }}/.config/{{ item.dest }}"
+    state: link
+    force: true
+  loop:
+    - { src: "systemd/user/ssh-agent-socket.service", dest: "systemd/user/ssh-agent-socket.service" }
+    - { src: "environment.d/50-ssh-agent.conf",       dest: "environment.d/50-ssh-agent.conf" }
+    - { src: "plasma-workspace/env/ssh-agent.sh",     dest: "plasma-workspace/env/ssh-agent.sh" }
+
+# Skipped where no user manager runs (the Docker test image).
+- name: Enable the ssh-agent user service
+  ansible.builtin.systemd_service:
+    name: ssh-agent-socket.service
+    scope: user
+    enabled: true
+    daemon_reload: true
+  when: ansible_env.XDG_RUNTIME_DIR is defined
+
 # ~/.local/bin must exist and be on PATH before we can symlink scripts into it.
 - name: Ensure ~/.local/bin exists
   ansible.builtin.file:

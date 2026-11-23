@@ -25,6 +25,7 @@ docker run --rm dotfiles-test
 - **Vim** — lightweight config with vim-plug
 - **Tmux** — Ctrl+A prefix, vi-mode, custom status bar, `prefix + ?` lists the shortcuts ([`x keys`](https://github.com/LionelPinheiroDuarte/toolbox/tree/main/x/commands/keys)), `prefix + N` for the journal popup ([`x notes --browse`](https://github.com/LionelPinheiroDuarte/toolbox/tree/main/x/commands/notes), from toolbox)
 - **Git** — global config and aliases
+- **SSH agent** — one `ssh-agent` per session on a fixed socket (`$XDG_RUNTIME_DIR/ssh-agent.socket`, a systemd user service), so user timers reach the keys without importing the shell's environment
 - **Emacs** — literate config via `config.org`
 - **Ansible** — idempotent playbook covering base tools, dev stack (Go, Node, Python, gh) and DevOps tools (Docker, kubectl, Terraform, AWS CLI)
 - **Claude Code** — custom hooks under `.claude/hooks/`, e.g. a `feat`-commit trigger that keeps project READMEs in sync
