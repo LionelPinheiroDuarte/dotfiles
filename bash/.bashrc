@@ -279,6 +279,36 @@ wtf() {
 	x wtf
 }
 
+# Test runs go through `x tests track` (toolbox), which records them for
+# `x tests`: start, end, results. Output and exit code are unchanged.
+# Only the test forms of npx, npm, uv, pytest and maestro are wrapped,
+# never --watch (it never ends); everything else runs as usual.
+# Claude's own commands are wrapped by the track-tests hook (agents repo).
+__x_tests_wraps() {
+	local a
+	for a in "$@"; do
+		case $a in --watch | --watchAll | --watch=* | --watchAll=*) return 1 ;; esac
+	done
+	case $1 in
+	npx) [[ $2 == jest || ($2 == playwright && $3 == test) ]] ;;
+	npm) [[ $2 == test || $2 == t || ($2 == run && $3 == test*) ]] ;;
+	uv) [[ $2 == run ]] && __x_tests_wraps "${@:3}" ;;
+	pytest) true ;;
+	maestro) [[ $2 == test ]] ;;
+	*) false ;;
+	esac
+}
+if _have x; then
+	for __c in npx npm uv pytest maestro; do
+		eval "$__c() {
+			if type -P $__c >/dev/null && __x_tests_wraps $__c \"\$@\"; then
+				x tests track -- $__c \"\$@\"
+			else command $__c \"\$@\"; fi
+		}"
+	done
+	unset __c
+fi
+
 PROMPT_COMMAND='log_output; __ps1'
 
 # === ALIASES ===
