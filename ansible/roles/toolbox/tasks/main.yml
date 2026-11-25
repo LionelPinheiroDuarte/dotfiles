@@ -3,5 +3,13 @@
 # creates: skips the install once pipx has built the venv; a failed install leaves none.
 - name: Install toolbox via pipx
   ansible.builtin.command:
-    cmd: /usr/bin/pipx install "toolbox @ git+https://github.com/LionelPinheiroDuarte/toolbox.git"
+    cmd: /usr/bin/pipx install "toolbox[tui] @ git+https://github.com/LionelPinheiroDuarte/toolbox.git"
     creates: "{{ ansible_env.HOME }}/.local/share/pipx/venvs/toolbox"
+
+# The x tests popup's Textual (the tui extra), also on a toolbox installed
+# before the extra existed: `creates` above skips those.
+- name: Install Textual for the x tests popup
+  ansible.builtin.command:
+    cmd: /usr/bin/pipx runpip toolbox install "textual>=8.2,<9"
+  register: toolbox_textual
+  changed_when: "'Successfully installed' in toolbox_textual.stdout"

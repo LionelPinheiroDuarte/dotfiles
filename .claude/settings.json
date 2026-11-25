@@ -1,5 +1,16 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "d=$HOME/Repos/github; [ -d \"$d\" ] || d=$HOME/repos/github; f=$d/agents/hooks/track-tests/track-tests.py; [ -f \"$f\" ] && python3 \"$f\" || true"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Bash",
