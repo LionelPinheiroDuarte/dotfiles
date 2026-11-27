@@ -30,6 +30,7 @@ docker run --rm dotfiles-test
 - **Ansible** — idempotent playbook covering base tools, dev stack (Go, Node, Python, gh) and DevOps tools (Docker, kubectl, Terraform, AWS CLI)
 - **Claude Code** — custom hooks under `.claude/hooks/`, e.g. a `feat`-commit trigger that keeps project READMEs in sync
 - **Claude tools** — tmux bindings for the toolbox's [`x claude`](https://github.com/LionelPinheiroDuarte/toolbox/tree/main/x/commands/claude) popups: `x claude edits` (`prefix + e` / `prefix + E`) and `x claude projects` (`prefix + g`), whose state marks come from the Claude Code hooks in `.claude/settings.json`
+- **Dev services** — `prefix + S` opens the toolbox's [`x svc`](https://github.com/LionelPinheiroDuarte/toolbox/tree/main/x/commands/svc) popup: each repo's dev servers, declared in its `.x-services.toml`, started, stopped or opened from there, the pane's project first
 - **Test runs** — `prefix + t` opens the toolbox's [`x tests`](https://github.com/LionelPinheiroDuarte/toolbox/tree/main/x/commands/tests) popup, a live timeline of the test runs. Mine go through it via shell functions in `.bashrc` (`npx`, `npm`, `uv`, `pytest`, `maestro`), Claude's via the [`track-tests`](https://github.com/LionelPinheiroDuarte/agents/tree/main/hooks/track-tests) hook in `.claude/settings.json`
 
 ## Credits
